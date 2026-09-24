@@ -47,15 +47,23 @@ export async function GET(request: NextRequest) {
   const isPublic = searchParams.get("isPublic")
   const mine = searchParams.get("mine") === "true"
 
+  const session = await getServerSession(authOptions)
+  const userId = session?.user?.id
+  const isAdmin = session?.user?.role === "admin"
+
+  // 默认只暴露公开试卷 + 本人试卷；未登录只能看公开的。
+  // 显式传 isPublic=true 可查公开池，传 false 仅管理员可用（否则忽略，防止越权枚举私有卷）
   const where: Prisma.TestPaperWhereInput = {}
-  if (isPublic !== null) {
+  if (isPublic !== null && (isPublic !== "false" || isAdmin)) {
     where.isPublic = isPublic === "true"
   }
   if (mine) {
-    const session = await getServerSession(authOptions)
-    if (session?.user?.id) {
-      where.userId = session.user.id
+    if (!userId) {
+      return NextResponse.json({ error: "未登录" }, { status: 401 })
     }
+    where.userId = userId
+  } else if (isPublic === null && !isAdmin) {
+    where.OR = [{ isPublic: true }, ...(userId ? [{ userId }] : [])]
   }
 
   const [papers, total] = await Promise.all([
