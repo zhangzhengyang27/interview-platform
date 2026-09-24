@@ -16,6 +16,7 @@ interface UserItem {
   email: string;
   image?: string | null;
   role: string;
+  banned?: boolean;
   createdAt: string;
   _count?: { practiceHistory?: number; comments?: number };
 }
@@ -115,6 +116,31 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleBanToggle = async (userId: string, banned: boolean) => {
+    const target = data.find((u) => u.id === userId);
+    const label = target?.name || target?.email || userId;
+    if (banned) {
+      const confirmed = await confirm({
+        title: "封禁用户",
+        message: `确定封禁「${label}」吗？封禁后该用户将无法登录，现有会话立即失效。`,
+        confirmText: "封禁",
+        danger: true,
+      });
+      if (!confirmed) return;
+    }
+    const res = await fetch(`/api/admin/users/${userId}/ban`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ banned }),
+    });
+    if (res.ok) {
+      fetchList();
+    } else {
+      const body = await res.json().catch(() => ({}));
+      alert({ title: "操作失败", message: body.error || "操作失败，请稍后重试。" });
+    }
+  };
+
   const handleViewDetail = async (userId: string) => {
     setDetailOpen(true);
     setDetailLoading(true);
@@ -158,8 +184,13 @@ export default function AdminUsersPage() {
             </span>
           )}
           <div className="min-w-0">
-            <div className="text-sm truncate" style={{ color: "var(--on-surface)" }}>
+            <div className="text-sm truncate" style={{ color: r.banned ? "var(--on-surface-variant)" : "var(--on-surface)" }}>
               {r.name || "未设置昵称"}
+              {r.banned && (
+                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium align-middle" style={{ color: "var(--error)", backgroundColor: "var(--error-container)" }}>
+                  已封禁
+                </span>
+              )}
             </div>
             <div className="text-xs truncate" style={{ color: "var(--on-surface-variant)" }}>
               {r.email}
@@ -220,6 +251,25 @@ export default function AdminUsersPage() {
               style={{ color: "var(--on-surface-variant)" }}
             >
               设为管理员
+            </button>
+          )}
+          {r.banned ? (
+            <button
+              type="button"
+              onClick={() => handleBanToggle(r.id, false)}
+              className="inline-flex items-center text-sm hover:opacity-70"
+              style={{ color: "var(--info-text)" }}
+            >
+              解封
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleBanToggle(r.id, true)}
+              className="inline-flex items-center text-sm hover:opacity-70"
+              style={{ color: "var(--error)" }}
+            >
+              封禁
             </button>
           )}
         </div>
