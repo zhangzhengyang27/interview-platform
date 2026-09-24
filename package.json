@@ -16,7 +16,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.11.2",
     "@codemirror/lang-cpp": "^6.0.3",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.5",
@@ -32,8 +31,6 @@
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "codemirror": "^6.0.2",
-    "date-fns": "^4.4.0",
-    "dotenv": "^17.4.2",
     "highlight.js": "^11.11.1",
     "jose": "^6.2.3",
     "lucide-react": "^1.17.0",
@@ -61,7 +58,6 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/ali-oss": "^6.23.3",
-    "@types/bcryptjs": "^3.0.0",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
