@@ -38,6 +38,22 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // 每日费用护栏：单用户每天最多 20 场面试（上海时区自然日）
+  const nowShanghai = new Date(Date.now() + 8 * 60 * 60 * 1000);
+  const dayStartUtc = new Date(
+    Date.UTC(nowShanghai.getUTCFullYear(), nowShanghai.getUTCMonth(), nowShanghai.getUTCDate()) -
+      8 * 60 * 60 * 1000
+  );
+  const todayCount = await prisma.mockInterview.count({
+    where: { userId: user!.id, createdAt: { gte: dayStartUtc } },
+  });
+  if (todayCount >= 20) {
+    return new Response(
+      JSON.stringify({ error: "今日模拟面试次数已达上限（20 场），请明天再试" }),
+      { status: 429, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
     const body = await request.json();
     const { direction } = body;

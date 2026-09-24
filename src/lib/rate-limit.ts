@@ -87,9 +87,12 @@ export function rateLimit(
  * 从请求中提取客户端 IP（兼容 Next.js 部署在代理后的场景）
  */
 export function getClientIp(request: Request): string {
+  // XFF 第一段是客户端可自行伪造的值；取最后一跳（由最外层可信代理写入）
+  // 单层反代（nginx/网关）部署形态下即真实客户端 IP
   const xff = request.headers.get("x-forwarded-for");
   if (xff) {
-    return xff.split(",")[0].trim();
+    const parts = xff.split(",").map((p) => p.trim()).filter(Boolean);
+    if (parts.length > 0) return parts[parts.length - 1];
   }
   const realIp = request.headers.get("x-real-ip");
   if (realIp) return realIp;
