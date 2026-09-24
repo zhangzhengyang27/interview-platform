@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth, getCurrentUser } from "@/lib/session";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
+
+const MAX_CONTENT_LENGTH = 20000;
 
 export async function GET(
   request: NextRequest,
@@ -55,6 +59,19 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // 题解必须登录：此前匿名可发布且不写 userId，内容无法归属治理
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
+  const rl = rateLimit(`solution-post:${user!.id}`, 10, 60 * 1000);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "发布过于频繁，请稍后再试" },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    );
+  }
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -63,6 +80,12 @@ export async function POST(
     if (!content || !content.trim()) {
       return NextResponse.json(
         { error: "题解内容不能为空" },
+        { status: 400 }
+      );
+    }
+    if (content.length > MAX_CONTENT_LENGTH) {
+      return NextResponse.json(
+        { error: `题解内容过长，最多 ${MAX_CONTENT_LENGTH} 字符` },
         { status: 400 }
       );
     }
@@ -81,6 +104,7 @@ export async function POST(
         questionId: id,
         content: content.trim(),
         language: language?.trim() || null,
+        userId: user!.id,
       },
       include: {
         user: {
