@@ -5,6 +5,7 @@ import { CodeEditor } from "@/components/CodeEditor";
 import { CodeRunner } from "@/components/CodeRunner";
 import { CodeSubmitter } from "@/components/CodeSubmitter";
 import { AICodeReviewer } from "@/components/AICodeReviewer";
+import { ProgressiveHints } from "@/components/ProgressiveHints";
 
 const CodeTabContent = memo(function CodeTabContent({
   code,
@@ -19,6 +20,9 @@ const CodeTabContent = memo(function CodeTabContent({
 }) {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
+      <div className="shrink-0 mb-3">
+        <ProgressiveHints questionId={questionId} />
+      </div>
       <div className="shrink-0">
         <CodeEditor value={code} onChange={setCode} language={language} />
       </div>

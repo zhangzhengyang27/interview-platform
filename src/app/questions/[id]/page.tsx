@@ -797,7 +797,7 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
             )}
             {activeTab === "solution" && <SolutionContent solution={question.solution} />}
             {activeTab === "answer" && (
-              <AnswerContent solution={question.solution} answer={question.answer} questionType={questionType} />
+              <AnswerContent questionId={question.id} solution={question.solution} answer={question.answer} questionType={questionType} />
             )}
             {activeTab === "interview" && (
               <InterviewContent
@@ -1002,6 +1002,7 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
           )}
           {activeTab === "answer" && (
             <AnswerContent
+              questionId={question.id}
               solution={question.solution}
               answer={question.answer}
               questionType={questionType}

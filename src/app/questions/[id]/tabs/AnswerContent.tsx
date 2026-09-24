@@ -2,8 +2,10 @@
 
 import { memo } from "react";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { ProgressiveHints } from "@/components/ProgressiveHints";
 
 const AnswerContent = memo(function AnswerContent({
+  questionId,
   solution,
   answer,
   questionType,
@@ -11,6 +13,7 @@ const AnswerContent = memo(function AnswerContent({
   onToggleBookmark,
   onShare,
 }: {
+  questionId: string;
   solution: string | null;
   answer?: boolean | null;
   questionType?: string;
@@ -21,6 +24,9 @@ const AnswerContent = memo(function AnswerContent({
   const isJudge = questionType === "judge";
   return (
     <div className="h-full overflow-y-auto md:p-6">
+      <div className="mb-4">
+        <ProgressiveHints questionId={questionId} />
+      </div>
       {solution || isJudge ? (
         <div>
           <div className="flex items-center gap-2 mb-4">
