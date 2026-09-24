@@ -80,6 +80,22 @@ const DIFFICULTY_COLORS: Record<string, { bg: string; text: string }> = {
   hard: { bg: "var(--error-container)", text: "var(--error)" },
 };
 
+interface Achievement {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  progress: number;
+  target: number;
+  achieved: boolean;
+}
+
+interface AchievementsData {
+  achievements: Achievement[];
+  achievedCount: number;
+  total: number;
+}
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [recentPractices, setRecentPractices] = useState<RecentPractice[]>([]);
@@ -294,6 +310,12 @@ export default function ProfilePage() {
 
           {/* ── Right: Main ── */}
           <div className="min-w-0 space-y-8">
+            {/* Achievements */}
+            <section>
+              <SectionHeader title="我的成就" />
+              <AchievementsSection />
+            </section>
+
             {/* Stats */}
             <section>
               <SectionHeader title="数据概览" />
@@ -471,6 +493,83 @@ function StatCell({ value, label }: { value: number; label: string }) {
       </div>
       <div className="text-xs mt-1.5" style={{ color: "var(--on-surface-variant)" }}>
         {label}
+      </div>
+    </div>
+  );
+}
+
+function AchievementsSection() {
+  const [data, setData] = useState<AchievementsData | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/achievements")
+      .then(async (r) => (r.ok ? setData(await r.json()) : setError(true)))
+      .catch(() => setError(true));
+  }, []);
+
+  if (error) {
+    return (
+      <div className="text-sm py-6" style={{ color: "var(--on-surface-variant)" }}>
+        加载中...
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <div className="text-sm py-6" style={{ color: "var(--on-surface-variant)" }}>
+        成就加载失败
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs" style={{ color: "var(--on-surface-variant)" }}>
+        已达成 {data.achievedCount} / {data.total} 个成就
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {data.achievements.map((a: Achievement) => {
+          const pct = Math.min(100, Math.round((a.progress / a.target) * 100));
+          return (
+            <div
+              key={a.id}
+              className="rounded-lg p-3 border transition-colors"
+              style={{
+                borderColor: a.achieved ? "var(--primary)" : "var(--outline-variant)",
+                backgroundColor: a.achieved ? "var(--primary-container)" : "var(--surface-container)",
+                opacity: a.achieved ? 1 : 0.75,
+              }}
+              title={`${a.description}：${a.progress}/${a.target}`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xl" aria-hidden>
+                  {a.icon}
+                </span>
+                {a.achieved && (
+                  <span className="text-[10px] font-medium" style={{ color: "var(--primary)" }}>
+                    已达成
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-xs font-medium truncate" style={{ color: "var(--on-surface)" }}>
+                {a.name} {a.target}
+              </p>
+              <div
+                className="mt-2 h-1 rounded-full overflow-hidden"
+                style={{ backgroundColor: "var(--outline-variant)" }}
+              >
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${pct}%`, backgroundColor: "var(--primary)" }}
+                />
+              </div>
+              <p className="mt-1 text-[10px] tabular-nums" style={{ color: "var(--on-surface-variant)" }}>
+                {a.progress}/{a.target}
+              </p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
