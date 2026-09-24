@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, getCurrentUser } from "@/lib/session";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,15 @@ export async function POST(
   const authError = await requireAuth();
   if (authError) return authError;
   const user = await getCurrentUser();
+
+  // 每一轮追问都会消耗 DeepSeek 配额，按用户限流
+  const rl = rateLimit(`mock-interview-turn:${user!.id}`, 20, 60 * 1000);
+  if (!rl.success) {
+    return new Response(JSON.stringify({ error: "回答提交过于频繁，请稍后再试" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", ...rateLimitHeaders(rl) },
+    });
+  }
 
   // ── Validate & prepare (non-streaming, returns JSON on error) ──────────────
   const { id } = await params;
