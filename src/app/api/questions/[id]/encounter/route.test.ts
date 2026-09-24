@@ -1,12 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { NextRequest } from "next/server"
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: {
+vi.mock("@/lib/prisma", () => {
+  const prisma = {
     question: { findUnique: vi.fn(), update: vi.fn() },
-    questionEncounter: { upsert: vi.fn(), count: vi.fn() }
+    questionEncounter: { upsert: vi.fn(), count: vi.fn() },
+    // 事务直接以 prisma mock 本身作为 tx 回调参数
+    $transaction: vi.fn((fn: (tx: typeof prisma) => unknown) => fn(prisma))
   }
-}))
+  return { prisma }
+})
 
 vi.mock("next-auth", () => ({
   default: vi.fn(),
@@ -57,7 +60,9 @@ describe("POST /api/questions/[id]/encounter", () => {
     ;(prisma.questionEncounter.upsert as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "e1"
     })
-    ;(prisma.questionEncounter.count as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(3)
+    ;(prisma.question.update as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      encounterCount: 3
+    })
 
     const res = await POST(mockRequest("q1", { tags: ["字节跳动", "后端"], note: "一面" }), {
       params: Promise.resolve({ id: "q1" })
@@ -65,7 +70,8 @@ describe("POST /api/questions/[id]/encounter", () => {
     expect(res.status).toBe(200)
     expect(prisma.question.update).toHaveBeenCalledWith({
       where: { id: "q1" },
-      data: { encounterCount: 3 }
+      data: { encounterCount: { increment: 1 } },
+      select: { encounterCount: true }
     })
   })
 })

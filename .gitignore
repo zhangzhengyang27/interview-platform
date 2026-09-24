@@ -65,3 +65,7 @@ backups/
 
 # codebuddy 项目数据
 .codebuddy/
+
+# ZCode 工具产物
+.zcode/
+.zcodeignore
