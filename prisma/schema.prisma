@@ -164,6 +164,7 @@ model Question {
   studyPlanItems StudyPlanItem[]
   studyPlanProgress StudyPlanProgress[]
   userStates UserQuestionState[]
+  hints QuestionHint[]
   testCases       TestCase[]
   solutions       Solution[]
   bookmarkItems  BookmarkItem[]
@@ -290,6 +291,20 @@ model Solution {
   @@index([userId])
   @@index([createdAt])
   @@map("solutions")
+}
+
+// AI 渐进式提示（按题缓存：首个用户触发生成，之后所有人复用，控制 AI 成本）
+model QuestionHint {
+  id         String   @id @default(uuid())
+  questionId String   @map("question_id")
+  level      Int      // 1 点拨 / 2 思路框架 / 3 详细思路
+  content    String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, level])
+  @@map("question_hints")
 }
 
 // 用户维度的题目掌握/收藏状态（替代 Question 上的全局 mastery/isBookmarked 字段）
