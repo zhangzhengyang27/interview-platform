@@ -15,9 +15,11 @@ const NAV_LINKS = [
   { label: "AI 模拟面试", href: "/ai/mock-interview" },
   { label: "学习路线", href: "/learning-paths" },
   { label: "学习计划", href: "/study-plans" },
+  { label: "试卷中心", href: "/test-papers" },
   { label: "求职指南", href: "/career" },
   { label: "社区交流", href: "/experiences" },
   { label: "竞赛中心", href: "/contests" },
+  { label: "排行榜", href: "/leaderboard" },
 ];
 
 interface MobileDrawerProps {

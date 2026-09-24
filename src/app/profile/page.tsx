@@ -285,6 +285,7 @@ export default function ProfilePage() {
               </div>
               <div className="divide-y" style={{ borderColor: "var(--outline-variant)" }}>
                 <SidebarLink href="/bookmarks" label="我的收藏" desc="收藏的题目" />
+                <SidebarLink href="/report" label="学习报告" desc="能力分析与 AI 建议" />
                 <SidebarLink href="/study-plans" label="学习计划" desc="规划复习路线" />
                 <SidebarLink href="/questions" label="题库" desc="浏览全部题目" />
               </div>

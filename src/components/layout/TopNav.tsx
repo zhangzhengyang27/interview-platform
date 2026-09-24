@@ -29,6 +29,7 @@ const NAV_LINKS = [
   { label: "求职指南", href: "/career" },
   { label: "社区交流", href: "/experiences" },
   { label: "竞赛中心", href: "/contests" },
+  { label: "排行榜", href: "/leaderboard" },
 ];
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 
@@ -190,7 +191,7 @@ export default function LeaderboardPage() {
                     <RankBadge rank={entry.rank} />
                   </div>
 
-                  {/* User Info - 移动端简化显示 */}
+                  {/* User Info - 移动端简化显示，点击进入公开主页 */}
                   <div className="flex-1 min-w-0 sm:col-span-5 flex items-center gap-3">
                     {entry.userImage ? (
                       <img
@@ -213,9 +214,18 @@ export default function LeaderboardPage() {
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="font-medium text-on-surface truncate text-sm sm:text-base">
-                        {entry.userName}
-                      </p>
+                      {entry.userId ? (
+                        <Link
+                          href={`/users/${entry.userId}`}
+                          className="font-medium text-on-surface truncate text-sm sm:text-base hover:text-primary transition-colors"
+                        >
+                          {entry.userName}
+                        </Link>
+                      ) : (
+                        <p className="font-medium text-on-surface truncate text-sm sm:text-base">
+                          {entry.userName}
+                        </p>
+                      )}
                       <p className="text-[11px] sm:text-xs text-on-surface-variant hidden sm:block">
                         ID: {(entry.userId ?? "").slice(-8)}
                       </p>
