@@ -12,6 +12,18 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     // 禁用 CSS 处理，提升测试速度
     css: false,
+    coverage: {
+      provider: "v8",
+      reporter: ["text"],
+      include: ["src/lib/**"],
+      // 核心业务逻辑层保底：防止覆盖率回退（2026-09 设定基线）
+      thresholds: {
+        statements: 40,
+        lines: 40,
+        functions: 30,
+        branches: 30,
+      },
+    },
   },
   resolve: {
     // 配置路径别名，与 tsconfig.json 中的 paths 保持一致
