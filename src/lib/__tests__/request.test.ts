@@ -27,17 +27,19 @@ describe("request 统一封装", () => {
   });
 
   it("apiPost 自动序列化 json 请求体并设置 Content-Type", async () => {
-    const fetchMock = vi.fn(async () => jsonResponse({ created: true }, 201));
+    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) =>
+      jsonResponse({ created: true }, 201)
+    );
     vi.stubGlobal("fetch", fetchMock);
     await apiPost("/api/x", { a: 1 });
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("POST");
     expect(init.body).toBe('{"a":1}');
     expect(new Headers(init.headers).get("Content-Type")).toBe("application/json");
   });
 
   it("apiPatch / apiDelete 方法正确", async () => {
-    const fetchMock = vi.fn(async () => jsonResponse({}));
+    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => jsonResponse({}));
     vi.stubGlobal("fetch", fetchMock);
     await apiPatch("/api/x", { b: 2 });
     await apiDelete("/api/x");
