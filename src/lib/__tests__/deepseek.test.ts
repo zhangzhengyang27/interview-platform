@@ -4,9 +4,9 @@ import { callDeepSeek, callDeepSeekStream, sseFormat } from "../deepseek";
 
 const originalKey = process.env.DEEPSEEK_API_KEY;
 
-function mockFetchOnce(payload: unknown, ok = true, status = 200) {
+function mockFetchOnce(payload: unknown, _ok = true, status = 200) {
   const fetchMock = vi.fn(async () =>
-    new Response(JSON.stringify(payload), { status, ok: status < 400 })
+    new Response(JSON.stringify(payload), { status })
   );
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
