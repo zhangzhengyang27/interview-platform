@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { requireAuth, getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-// PATCH /api/notifications/read-all — 全部标记已读
+// PATCH /api/notifications/read-all — 当前用户全部标记已读
 export async function PATCH() {
   try {
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id as string | undefined;
+    const authError = await requireAuth();
+    if (authError) return authError;
+    const user = await getCurrentUser();
 
     const result = await prisma.notification.updateMany({
       where: {
-        userId: userId ?? undefined,
+        userId: user!.id,
         read: false,
       },
       data: { read: true },

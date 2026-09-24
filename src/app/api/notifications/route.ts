@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { requireAuth, getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 20;
 
-// GET /api/notifications — 获取通知列表（分页，未读优先）
+// GET /api/notifications — 获取当前用户的通知列表（分页，未读优先）
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id as string | undefined;
+    const authError = await requireAuth();
+    if (authError) return authError;
+    const user = await getCurrentUser();
+    const userId = user!.id;
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") ?? "1");
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * PAGE_SIZE;
 
     const where: Record<string, unknown> = {
-      userId: userId ?? undefined,
+      userId,
     };
 
     if (unreadOnly) {
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     // 统计未读数量
     const unreadCount = await prisma.notification.count({
       where: {
-        userId: userId ?? undefined,
+        userId,
         read: false,
       },
     });
@@ -80,21 +81,16 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/notifications — 创建新通知（内部调用）
+// POST /api/notifications — 创建当前用户的通知
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id;
+    const authError = await requireAuth();
+    if (authError) return authError;
+    const user = await getCurrentUser();
+    const userId = user!.id;
 
     const body = await request.json();
     const { type, title, body: notificationBody, link } = body;
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "未登录，无法创建通知" },
-        { status: 401 }
-      );
-    }
 
     if (!type || !title) {
       return NextResponse.json(
