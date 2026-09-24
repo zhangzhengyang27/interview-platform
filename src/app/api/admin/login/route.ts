@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signJWT } from "@/lib/jwt";
+import { getClientIp, rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    // 管理员入口可被爆破密码：IP 维度严格限流
+    const ipRl = rateLimit(`admin-login-ip:${getClientIp(request)}`, 5, 60 * 1000);
+    if (!ipRl.success) {
+      return NextResponse.json(
+        { error: "尝试过于频繁，请稍后再试" },
+        { status: 429, headers: rateLimitHeaders(ipRl) }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -14,13 +24,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 按邮箱统计失败次数（仅在失败分支计数，成功登录不消耗），10 次/小时锁定
+    const emailFailureCheck = () => {
+      const emailRl = rateLimit(`admin-login-fail:${email}`, 10, 60 * 60 * 1000);
+      if (!emailRl.success) {
+        return NextResponse.json(
+          { error: "失败次数过多，该邮箱已被锁定 1 小时" },
+          { status: 429, headers: rateLimitHeaders(emailRl) }
+        );
+      }
+      return null;
+    };
+
     // 查找用户
     const user = await prisma.user.findUnique({
       where: { email },
     });
 
     if (!user || !user.password) {
-      return NextResponse.json(
+      return emailFailureCheck() ?? NextResponse.json(
         { error: "邮箱或密码错误" },
         { status: 401 }
       );
@@ -29,7 +51,7 @@ export async function POST(request: NextRequest) {
     // 验证密码
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      return NextResponse.json(
+      return emailFailureCheck() ?? NextResponse.json(
         { error: "邮箱或密码错误" },
         { status: 401 }
       );
