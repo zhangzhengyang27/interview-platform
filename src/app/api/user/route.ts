@@ -109,7 +109,7 @@ export async function DELETE() {
       prisma.bookmarkFolder.deleteMany({ where: { userId } }),
       prisma.mockInterview.deleteMany({ where: { userId } }),
       prisma.studyPlanProgress.deleteMany({
-        where: { studyPlanId: userId },
+        where: { studyPlan: { userId } },
       }),
       prisma.studyPlan.deleteMany({ where: { userId } }),
       prisma.contestSubmission.deleteMany({ where: { userId } }),
