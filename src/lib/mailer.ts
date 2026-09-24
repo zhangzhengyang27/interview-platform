@@ -13,6 +13,36 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
+ * 通用邮件发送。
+ * 未配置 SMTP 或发送失败时降级为控制台输出，返回 false（不抛错）。
+ */
+export async function sendMail(options: {
+  to: string;
+  subject: string;
+  text: string;
+  html?: string;
+}): Promise<boolean> {
+  const hasSmtp = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS;
+  if (!hasSmtp) {
+    console.warn(
+      `[mailer] 未配置 SMTP，邮件降级输出到控制台：${options.to} <- ${options.subject}`
+    );
+    return false;
+  }
+  try {
+    await transporter.sendMail({
+      from: `"面试网" <${process.env.SMTP_USER}>`,
+      ...options,
+    });
+    return true;
+  } catch (e) {
+    const errMsg = e instanceof Error ? e.message : String(e);
+    console.warn(`[mailer] 邮件发送失败：${options.to} <- ${options.subject}（${errMsg}）`);
+    return false;
+  }
+}
+
+/**
  * 发送注册验证码邮件。
  * 若未配置 SMTP，则降级为控制台输出验证码（便于本地联调）。
  */

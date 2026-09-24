@@ -25,6 +25,21 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(self), microphone=(self), geolocation=()",
           },
+          // Report-Only 模式：观察两周无上报后再切换为强制 CSP
+          {
+            key: "Content-Security-Policy-Report-Only",
+            value: [
+              "default-src 'self'",
+              // Next.js 运行时需要内联脚本（ hydration / 防闪烁主题脚本 ）
+              "script-src 'self' 'unsafe-inline' https://analytics.umami.is",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: blob: https:",
+              "media-src 'self' blob:",
+              "connect-src 'self' https://api.deepseek.com https://*.aliyuncs.com https://*.volcengineapi.com https://analytics.umami.is wss://rtc.volcengineapi.com",
+              "font-src 'self' data:",
+              "frame-ancestors 'self'",
+            ].join("; "),
+          },
         ],
       },
     ];
