@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import type { Comment } from "../types";
@@ -9,14 +9,35 @@ const DiscussionContent = memo(function DiscussionContent({
   questionId,
   comments,
   onUpvote,
+  onReply,
 }: {
   questionId: string;
   comments: Comment[];
   onUpvote: (id: string) => void;
+  onReply: (parentId: string, content: string) => Promise<boolean>;
 }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [commentText, setCommentText] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyLoading, setReplyLoading] = useState(false);
+
+  // 按根评论 + 一层回复组织（服务端保证二层回复统一挂根）
+  const { roots, repliesByParent } = useMemo(() => {
+    const roots: Comment[] = [];
+    const repliesByParent = new Map<string, Comment[]>();
+    for (const c of comments) {
+      if (!c.parentId) {
+        roots.push(c);
+      } else {
+        const list = repliesByParent.get(c.parentId) ?? [];
+        list.push(c);
+        repliesByParent.set(c.parentId, list);
+      }
+    }
+    return { roots, repliesByParent };
+  }, [comments]);
 
   const submitComment = async () => {
     if (!commentText.trim() || commentLoading) return;
@@ -36,6 +57,97 @@ const DiscussionContent = memo(function DiscussionContent({
       setCommentLoading(false);
     }
   };
+
+  const submitReply = async (parentId: string) => {
+    if (!replyText.trim() || replyLoading) return;
+    setReplyLoading(true);
+    try {
+      const ok = await onReply(parentId, replyText.trim());
+      if (ok) {
+        setReplyText("");
+        setReplyTo(null);
+      }
+    } finally {
+      setReplyLoading(false);
+    }
+  };
+
+  const renderComment = (comment: Comment, isReply: boolean) => (
+    <div
+      key={comment.id}
+      className={`rounded-lg p-4 ${isReply ? "" : ""}`}
+      style={{
+        backgroundColor: "var(--surface-low)",
+        border: "1px solid var(--outline-variant)",
+        marginLeft: isReply ? "28px" : undefined,
+      }}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className={`text-sm font-medium ${comment.userId ? "text-primary" : "text-on-surface-variant"}`}>
+          {comment.author ?? "匿名用户"}
+        </span>
+        <span className="text-[11px] text-on-surface-variant">
+          {new Date(comment.createdAt).toLocaleDateString("zh-CN")}
+        </span>
+      </div>
+      <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
+        {comment.content}
+      </p>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          onClick={() => onUpvote(comment.id)}
+          className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-primary transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+            <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+          </svg>
+          {comment.upvotes}
+        </button>
+        {isAuthenticated && !isReply && (
+          <button
+            onClick={() => {
+              setReplyTo(replyTo === comment.id ? null : comment.id);
+              setReplyText("");
+            }}
+            className="text-xs text-on-surface-variant hover:text-primary transition-colors"
+          >
+            回复
+          </button>
+        )}
+        {isAuthenticated && user?.id && comment.userId === user.id && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-highest text-on-surface-variant">
+            我的评论
+          </span>
+        )}
+      </div>
+      {replyTo === comment.id && (
+        <div className="mt-3 flex gap-2" style={{ backgroundColor: "var(--surface-container)", borderRadius: "8px", padding: "8px" }}>
+          <textarea
+            className="flex-1 bg-transparent border-none text-on-surface text-sm resize-none outline-none"
+            placeholder={`回复 ${comment.author ?? "匿名用户"}...`}
+            rows={2}
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                submitReply(comment.id);
+              }
+            }}
+          />
+          <button
+            onClick={() => submitReply(comment.id)}
+            disabled={!replyText.trim() || replyLoading}
+            className="self-end px-3 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-40"
+            style={{ backgroundColor: "var(--primary)", color: "var(--on-primary)" }}
+          >
+            {replyLoading ? "发送中..." : "回复"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -93,7 +205,7 @@ const DiscussionContent = memo(function DiscussionContent({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {!comments || comments.length === 0 ? (
+        {(!comments || comments.length === 0) ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <svg
               className="w-12 h-12 text-on-surface-variant mb-3"
@@ -107,35 +219,10 @@ const DiscussionContent = memo(function DiscussionContent({
             <p className="text-sm text-on-surface-variant">暂无讨论，成为第一个回答者</p>
           </div>
         ) : (
-          comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="rounded-lg p-4"
-              style={{ backgroundColor: "var(--surface-low)", border: "1px solid var(--outline-variant)" }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-primary">
-                  {comment.author ?? "匿名用户"}
-                </span>
-                <span className="text-[11px] text-on-surface-variant">
-                  {new Date(comment.createdAt).toLocaleDateString("zh-CN")}
-                </span>
-              </div>
-              <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
-                {comment.content}
-              </p>
-              <div className="mt-3 flex items-center gap-2">
-                <button
-                  onClick={() => onUpvote(comment.id)}
-                  className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-primary transition-colors"
-                >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
-                    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
-                  </svg>
-                  {comment.upvotes}
-                </button>
-              </div>
+          roots.map((root) => (
+            <div key={root.id} className="space-y-2">
+              {renderComment(root, false)}
+              {(repliesByParent.get(root.id) ?? []).map((reply) => renderComment(reply, true))}
             </div>
           ))
         )}

@@ -29,8 +29,10 @@ export interface DbQuestionList {
 
 export interface Comment {
   id: string;
+  parentId: string | null;
   content: string;
   author: string | null;
+  userId: string | null;
   upvotes: number;
   createdAt: string;
 }

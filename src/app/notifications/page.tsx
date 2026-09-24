@@ -45,11 +45,26 @@ function formatTime(iso: string): string {
 
 function NotificationsContent() {
   const [page, setPage] = useState(1);
-  const { data, error, isLoading } = useSWR<NotificationResponse>(
+  const { data, error, isLoading, mutate } = useSWR<NotificationResponse>(
     `/api/notifications?page=${page}`,
     fetcher,
     { revalidateOnFocus: true }
   );
+
+  const markAllRead = async () => {
+    await fetch("/api/notifications/read-all", { method: "PATCH" });
+    mutate();
+  };
+
+  const markOneRead = async (id: string) => {
+    await fetch(`/api/notifications/${id}`, { method: "PATCH" });
+    mutate();
+  };
+
+  const removeOne = async (id: string) => {
+    await fetch(`/api/notifications/${id}`, { method: "DELETE" });
+    mutate();
+  };
 
   if (isLoading) {
     return (
@@ -78,12 +93,24 @@ function NotificationsContent() {
 
   return (
     <div className="space-y-2">
-      {data.unreadCount > 0 && (
-        <div className="flex items-center gap-2 px-1 py-2 text-sm text-on-surface-variant">
+      <div className="flex items-center justify-between px-1 py-2">
+        <div className="flex items-center gap-2 text-sm text-on-surface-variant">
           <CheckCheck className="h-4 w-4" />
-          您有 {data.unreadCount} 条未读通知
+          {data.unreadCount > 0
+            ? `您有 ${data.unreadCount} 条未读通知`
+            : "全部通知已读"}
         </div>
-      )}
+        {data.unreadCount > 0 && (
+          <button
+            type="button"
+            onClick={markAllRead}
+            className="text-sm px-3 py-1.5 rounded transition-colors hover:opacity-90"
+            style={{ backgroundColor: "var(--primary)", color: "var(--on-primary)" }}
+          >
+            全部已读
+          </button>
+        )}
+      </div>
       {data.notifications.map((n) => {
         const meta = TYPE_META[n.type] ?? { label: "通知", icon: "🔔" };
         const content = (
@@ -109,15 +136,42 @@ function NotificationsContent() {
               )}
               <p className="mt-1.5 text-xs text-on-surface-variant">{formatTime(n.createdAt)}</p>
             </div>
+            <div className="flex flex-col gap-1 flex-shrink-0">
+              {!n.read && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    markOneRead(n.id);
+                  }}
+                  className="text-xs text-on-surface-variant hover:text-primary"
+                  title="标记已读"
+                >
+                  已读
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  removeOne(n.id);
+                }}
+                className="text-xs text-on-surface-variant hover:text-error"
+                title="删除通知"
+              >
+                删除
+              </button>
+            </div>
           </div>
         );
-        return n.link ? (
-          <Link key={n.id} href={n.link} className="block">
+        const wrapped = n.link ? (
+          <Link key={n.id} href={n.link} className="block" onClick={() => !n.read && markOneRead(n.id)}>
             {content}
           </Link>
         ) : (
           <div key={n.id}>{content}</div>
         );
+        return wrapped;
       })}
 
       {data.pagination.totalPages > 1 && (

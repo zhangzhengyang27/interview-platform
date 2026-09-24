@@ -325,6 +325,26 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
     }
   }
 
+  const replyToComment = async (parentId: string, content: string) => {
+    if (!questionId) return false
+    try {
+      const res = await fetch(`/api/questions/${questionId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, parentId })
+      })
+      if (res.ok) {
+        const newComment: Comment = await res.json()
+        setQuestion((prev) => (prev ? { ...prev, comments: [newComment, ...prev.comments] } : prev))
+        flashMsg("回复已发布")
+        return true
+      }
+      return false
+    } catch {
+      return false
+    }
+  }
+
   // Solution handlers
   const handleSolutionClick = (solution: Solution) => {
     setSelectedSolution(solution)
@@ -793,6 +813,7 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
                 questionId={question.id}
                 comments={question.comments ?? []}
                 onUpvote={upvoteComment}
+                onReply={replyToComment}
               />
             )}
             {activeTab === "user_solutions" && (
@@ -1003,6 +1024,7 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
               questionId={question.id}
               comments={question.comments ?? []}
               onUpvote={upvoteComment}
+              onReply={replyToComment}
             />
           )}
           {activeTab === "user_solutions" && (

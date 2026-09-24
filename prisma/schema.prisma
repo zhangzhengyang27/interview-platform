@@ -255,6 +255,7 @@ model PracticeHistory {
 model Comment {
   id         String   @id @default(uuid())
   questionId String   @map("question_id")
+  parentId   String?  @map("parent_id")
   content    String
   author     String?
   upvotes    Int      @default(0)
@@ -263,8 +264,11 @@ model Comment {
   userId  String? @map("user_id")
   user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
 
   @@index([questionId])
+  @@index([parentId])
   @@map("comments")
 }
 
