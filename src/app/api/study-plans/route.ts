@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, getCurrentUser } from "@/lib/session";
+import { parseBody } from "@/lib/validate";
+import { createStudyPlanSchema } from "@/lib/schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -73,29 +75,9 @@ export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
 
   try {
-    const body = await request.json();
-    const { title, description, totalDays } = body;
-
-    if (!title || !totalDays) {
-      return NextResponse.json(
-        { error: "缺少必填字段: title, totalDays" },
-        { status: 400 }
-      );
-    }
-
-    if (typeof totalDays !== "number" || totalDays < 1) {
-      return NextResponse.json(
-        { error: "totalDays must be a positive integer" },
-        { status: 400 }
-      );
-    }
-
-    if (totalDays > 365) {
-      return NextResponse.json(
-        { error: "totalDays 不能超过 365" },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseBody(request, createStudyPlanSchema);
+    if (!parsed.success) return parsed.response;
+    const { title, description, totalDays } = parsed.data;
 
     const plan = await prisma.studyPlan.create({
       data: {

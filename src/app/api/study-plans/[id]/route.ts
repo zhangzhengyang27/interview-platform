@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, getCurrentUser } from "@/lib/session";
+import { parseBody } from "@/lib/validate";
+import { updateStudyPlanSchema } from "@/lib/schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -127,8 +129,9 @@ export async function PUT(
     const { error } = await checkOwnership(id, user!.id);
     if (error) return error;
 
-    const body = await request.json();
-    const { title, description, totalDays } = body;
+    const parsed = await parseBody(request, updateStudyPlanSchema);
+    if (!parsed.success) return parsed.response;
+    const { title, description, totalDays } = parsed.data;
 
     // 验证学习计划是否存在
     const existingPlan = await prisma.studyPlan.findUnique({
@@ -165,7 +168,7 @@ export async function PUT(
     }
 
     // 更新学习计划基本信息
-    const updateData: { title?: string; description?: string; totalDays?: number } = {};
+    const updateData: { title?: string; description?: string | null; totalDays?: number } = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (totalDays !== undefined) updateData.totalDays = totalDays;

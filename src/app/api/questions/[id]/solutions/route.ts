@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, getCurrentUser } from "@/lib/session";
 import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
-
-const MAX_CONTENT_LENGTH = 20000;
+import { parseBody } from "@/lib/validate";
+import { createSolutionSchema } from "@/lib/schemas";
 
 export async function GET(
   request: NextRequest,
@@ -74,21 +74,9 @@ export async function POST(
 
   try {
     const { id } = await params;
-    const body = await request.json();
-    const { content, language } = body;
-
-    if (!content || !content.trim()) {
-      return NextResponse.json(
-        { error: "题解内容不能为空" },
-        { status: 400 }
-      );
-    }
-    if (content.length > MAX_CONTENT_LENGTH) {
-      return NextResponse.json(
-        { error: `题解内容过长，最多 ${MAX_CONTENT_LENGTH} 字符` },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseBody(request, createSolutionSchema);
+    if (!parsed.success) return parsed.response;
+    const { content, language } = parsed.data;
 
     // 验证题目是否存在
     const question = await prisma.question.findUnique({

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { parseBody } from "@/lib/validate";
+import { updateUserProfileSchema } from "@/lib/schemas";
 
 // GET /api/user — 获取当前用户详情
 export async function GET() {
@@ -54,8 +56,9 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { name, image, bio, emailNotifications, reminderEnabled } = body;
+  const parsed = await parseBody(request, updateUserProfileSchema);
+  if (!parsed.success) return parsed.response;
+  const { name, image, bio, emailNotifications, reminderEnabled } = parsed.data;
 
   const updated = await prisma.user.update({
     where: { id: session.user.id },

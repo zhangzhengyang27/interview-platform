@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import type { Prisma } from "@/generated/prisma/client"
+import { parseBody } from "@/lib/validate"
+import { createTestPaperSchema } from "@/lib/schemas"
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -10,10 +12,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "未登录" }, { status: 401 })
   }
 
-  const { title, detail, isPublic, questionIds } = await request.json()
-  if (!title?.trim() || !Array.isArray(questionIds) || questionIds.length === 0) {
-    return NextResponse.json({ error: "标题和题目不能为空" }, { status: 400 })
-  }
+  const parsed = await parseBody(request, createTestPaperSchema)
+  if (!parsed.success) return parsed.response
+  const { title, detail, isPublic, questionIds } = parsed.data
 
   const questions = await prisma.question.findMany({
     where: { id: { in: questionIds } },

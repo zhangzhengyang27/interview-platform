@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, getCurrentUser } from "@/lib/session";
 import { createNotification } from "@/lib/notify";
-
-const MAX_CONTENT_LENGTH = 5000;
+import { parseBody } from "@/lib/validate";
+import { createCommentSchema } from "@/lib/schemas";
 
 export async function GET(
   request: NextRequest,
@@ -50,19 +50,10 @@ export async function POST(
     const user = await getCurrentUser();
 
     const { id } = await params;
-    const body = await request.json();
-    const content: string | undefined = body.content;
-    let parentCommentId: string | undefined = body.parentId;
-
-    if (!content || !content.trim()) {
-      return NextResponse.json({ error: "Content is required" }, { status: 400 });
-    }
-    if (content.length > MAX_CONTENT_LENGTH) {
-      return NextResponse.json(
-        { error: `评论过长，最多 ${MAX_CONTENT_LENGTH} 字符` },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseBody(request, createCommentSchema);
+    if (!parsed.success) return parsed.response;
+    const content = parsed.data.content;
+    let parentCommentId: string | undefined = parsed.data.parentId;
 
     // 回复目标校验：必须属于同一题目的评论，且仅支持一层嵌套
     let parentAuthorId: string | null = null;

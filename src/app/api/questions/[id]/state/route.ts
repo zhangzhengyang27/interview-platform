@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, getCurrentUser } from "@/lib/session";
-
-const VALID_MASTERY = new Set(["unsolved", "learning", "mastered"]);
+import { parseBody } from "@/lib/validate";
+import { updateQuestionStateSchema } from "@/lib/schemas";
 
 // PATCH /api/questions/[id]/state — 更新当前用户对该题的掌握/收藏状态
 export async function PATCH(
@@ -15,21 +15,9 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const body = await request.json();
-    const { mastery, isBookmarked } = body as {
-      mastery?: string;
-      isBookmarked?: boolean;
-    };
-
-    if (mastery !== undefined && !VALID_MASTERY.has(mastery)) {
-      return NextResponse.json({ error: "无效的掌握状态" }, { status: 400 });
-    }
-    if (isBookmarked !== undefined && typeof isBookmarked !== "boolean") {
-      return NextResponse.json({ error: "isBookmarked 必须为布尔值" }, { status: 400 });
-    }
-    if (mastery === undefined && isBookmarked === undefined) {
-      return NextResponse.json({ error: "无需要更新的字段" }, { status: 400 });
-    }
+    const parsed = await parseBody(request, updateQuestionStateSchema);
+    if (!parsed.success) return parsed.response;
+    const { mastery, isBookmarked } = parsed.data;
 
     const questionExists = await prisma.question.findUnique({
       where: { id },
