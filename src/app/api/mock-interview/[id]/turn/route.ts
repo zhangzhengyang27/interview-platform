@@ -96,11 +96,8 @@ export async function POST(
     ...(turn.userAnswer ? [{ role: "user" as const, content: turn.userAnswer }] : []),
   ]);
 
-  // Save user answer
-  await prisma.mockInterviewTurn.update({
-    where: { id: currentTurn.id },
-    data: { userAnswer: answer },
-  });
+  // 注意：用户回答在 AI 评估完成后与本轮反馈一起原子落库。
+  // 此前先存答案再调 AI，一旦 AI 失败该轮即被 userAnswer 占用，永远无法重试。
 
   // Build evaluation prompt based on direction type
   let systemPrompt: string;
@@ -219,8 +216,9 @@ export async function POST(
   });
 
   if (!dsResponse.ok) {
-    const errorText = await dsResponse.text();
-    return jsonError(`DeepSeek API 错误: ${dsResponse.status} - ${errorText}`, 502);
+    // 不向上游透传内部错误细节
+    console.error("DeepSeek API 错误:", dsResponse.status);
+    return jsonError("AI 服务暂时不可用，请稍后重试", 502);
   }
 
   const dsBody = dsResponse.body!;
@@ -283,24 +281,37 @@ export async function POST(
           return;
         }
 
-        // ── 3. Save feedback & score to DB ──────────────────────────────────
-        await prisma.mockInterviewTurn.update({
-          where: { id: currentTurn.id },
-          data: { aiFeedback: parsed.feedback, score: parsed.score },
-        });
-
-        // ── 4. Handle interview completion or next question ─────────────────
-        if (isLastTurn || parsed.isComplete) {
-          await prisma.mockInterview.update({
-            where: { id },
-            data: {
-              status: "completed",
-              endedAt: new Date(),
-              overallScore: parsed.overallScore ?? null,
-              summary: parsed.summary ?? null,
-            },
+        // ── 3. 原子落库：答案 + 反馈 + 面试完成状态/下一轮 ─────────────────
+        await prisma.$transaction(async (tx) => {
+          await tx.mockInterviewTurn.update({
+            where: { id: currentTurn.id },
+            data: { userAnswer: answer, aiFeedback: parsed.feedback, score: parsed.score },
           });
 
+          if (isLastTurn || parsed.isComplete) {
+            await tx.mockInterview.update({
+              where: { id },
+              data: {
+                status: "completed",
+                endedAt: new Date(),
+                overallScore: parsed.overallScore ?? null,
+                summary: parsed.summary ?? null,
+              },
+            });
+          } else {
+            const nextQuestion = parsed.nextQuestion ?? "请继续。";
+            await tx.mockInterviewTurn.create({
+              data: {
+                mockInterviewId: id,
+                aiQuestion: nextQuestion,
+                turnOrder: currentTurnOrder + 1,
+              },
+            });
+          }
+        });
+
+        // ── 4. SSE 结果事件 ────────────────────────────────────────────────
+        if (isLastTurn || parsed.isComplete) {
           controller.enqueue(
             enc.encode(
               sse({
@@ -314,15 +325,6 @@ export async function POST(
           );
         } else {
           const nextQuestion = parsed.nextQuestion ?? "请继续。";
-
-          await prisma.mockInterviewTurn.create({
-            data: {
-              mockInterviewId: id,
-              aiQuestion: nextQuestion,
-              turnOrder: currentTurnOrder + 1,
-            },
-          });
-
           controller.enqueue(
             enc.encode(
               sse({

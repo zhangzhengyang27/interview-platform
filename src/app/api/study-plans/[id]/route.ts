@@ -170,30 +170,34 @@ export async function PUT(
     if (description !== undefined) updateData.description = description;
     if (totalDays !== undefined) updateData.totalDays = totalDays;
 
-    const plan = await prisma.studyPlan.update({
-      where: { id },
-      data: updateData,
-      include: {
-        days: {
-          orderBy: { dayNumber: "asc" },
+    // 更新基本信息 + 扩展天数：包在事务中保证一致性
+    const plan = await prisma.$transaction(async (tx) => {
+      const updated = await tx.studyPlan.update({
+        where: { id },
+        data: updateData,
+        include: {
+          days: {
+            orderBy: { dayNumber: "asc" },
+          },
         },
-      },
-    });
-
-    // 如果增加了天数，创建新的天数记录
-    if (totalDays !== undefined && totalDays > existingPlan.days.length) {
-      const newDays = Array.from(
-        { length: totalDays - existingPlan.days.length },
-        (_, i) => ({
-          studyPlanId: id,
-          dayNumber: existingPlan.days.length + i + 1,
-        })
-      );
-
-      await prisma.studyPlanDay.createMany({
-        data: newDays,
       });
-    }
+
+      if (totalDays !== undefined && totalDays > existingPlan.days.length) {
+        const newDays = Array.from(
+          { length: totalDays - existingPlan.days.length },
+          (_, i) => ({
+            studyPlanId: id,
+            dayNumber: existingPlan.days.length + i + 1,
+          })
+        );
+
+        await tx.studyPlanDay.createMany({
+          data: newDays,
+        });
+      }
+
+      return updated;
+    });
 
     return NextResponse.json(plan);
   } catch (error) {
