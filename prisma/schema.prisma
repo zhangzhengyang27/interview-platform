@@ -148,8 +148,6 @@ model Question {
   difficulty    String
   company       String?
   jobRole       String?  @map("job_role") // "backend" | "frontend" | "fullstack" | "algorithm" | "devops" | "data" | "mobile" | "general"
-  mastery       String   @default("unsolved")
-  isBookmarked  Boolean  @default(false)
   viewCount     Int      @default(0)
   encounterCount Int @default(0) @map("encounter_count")
   createdAt     DateTime @default(now()) @map("created_at")
@@ -283,18 +281,6 @@ model Solution {
   @@index([userId])
   @@index([createdAt])
   @@map("solutions")
-}
-
-model Streak {
-  id           String   @id @default(uuid())
-  date         DateTime @unique
-  questionCount Int     @default(0) @map("question_count")
-  dailyGoal    Int      @default(5) @map("daily_goal")
-  goalMet      Boolean  @default(false) @map("goal_met")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  @@map("streaks")
 }
 
 // 用户维度的题目掌握/收藏状态（替代 Question 上的全局 mastery/isBookmarked 字段）
