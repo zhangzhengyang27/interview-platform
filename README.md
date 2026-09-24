@@ -9,16 +9,16 @@ AI 驱动的程序员面试准备平台 —— 题库练习、AI 模拟面试、
 | 层 | 选型 |
 | --- | --- |
 | 框架 | Next.js 16 (App Router) + React 19 + TypeScript（strict） |
-| 样式 | Tailwind CSS v4 + 设计令牌（CSS 变量）+ 暗色模式（`next-themes`） |
+| 样式 | Tailwind CSS v4 + 设计令牌（CSS 变量）+ 暗色模式（自写 data-theme 脚本） |
 | 数据库 | PostgreSQL + Prisma 7（`@prisma/adapter-pg` 连接池） |
-| 认证 | NextAuth v4（Credentials + GitHub OAuth，JWT 会话） |
+| 认证 | NextAuth v4（Credentials 邮箱密码 + 邮箱验证码注册，JWT 会话） |
 | AI | DeepSeek（`deepseek-chat`，支持 SSE 流式输出） |
 | 代码执行 | Piston 在线执行 API（多语言沙箱，15s 超时） |
 | 图表/渲染 | Recharts、react-markdown、Mermaid、highlight.js |
 | 编辑器 | CodeMirror（多语言） |
 | 数据获取 | SWR（客户端）、直接调用（服务端） |
 | 存储 | 阿里云 OSS（可选，图片上传） |
-| 测试 | Vitest + Testing Library + Playwright |
+| 测试 | Vitest + Testing Library（lib 覆盖率阈值 40%） |
 | 其他 | PWA Service Worker（离线支持） |
 
 ## 功能模块
@@ -28,8 +28,8 @@ AI 驱动的程序员面试准备平台 —— 题库练习、AI 模拟面试、
 - **竞赛 (Contests)**：题目提交与评测排行。
 - **学习路径 / 学习计划**：结构化学习路线与个性化计划。
 - **试卷 (Test Papers)**：自定义组卷练习。
-- **数据看板 (Dashboard)**：连续打卡、能力雷达、练习热力图、薄弱点分析、间隔复习（SM-2）。
-- **每日一题 / 复习提醒**：基于 SM-2 间隔重复算法的到期复习。
+- **数据看板 (Dashboard)**：连续打卡、能力雷达、练习热力图、薄弱点分析、间隔复习（艾宾浩斯遗忘曲线）。
+- **每日一题 / 复习提醒**：基于艾宾浩斯遗忘曲线的到期复习。
 - **社区**：题解、评论、经验分享、公司面经、收藏、通知。
 - **后台管理**：内容审核与举报管理。
 
@@ -64,7 +64,7 @@ interview-platform/
 │   │   ├── auth.ts           # NextAuth 配置
 │   │   ├── deepseek.ts       # DeepSeek AI 服务
 │   │   ├── code-runner.ts    # Piston 代码执行
-│   │   ├── review-scheduler.ts  # SM-2 间隔复习
+│   │   ├── review-scheduler.ts  # 艾宾浩斯间隔复习
 │   │   ├── session.ts        # 会话/鉴权工具
 │   │   └── oss.ts            # 阿里云 OSS
 │   └── data/                 # 题库种子数据（TS）
@@ -75,7 +75,6 @@ interview-platform/
 ├── public/                   # 静态资源
 ├── scripts/                  # 工具脚本
 ├── docs/                     # 项目文档
-└── supabase/                 # 早期方案遗留（已不启用）
 ```
 
 ## 环境要求
@@ -113,9 +112,8 @@ pnpm dev
 | `DATABASE_URL` | 是 | PostgreSQL 连接串 |
 | `DEEPSEEK_API_KEY` | 是 | AI 功能所需（模拟面试、智能出题等） |
 | `AUTH_SECRET` | 是 | NextAuth JWT 签名密钥 |
-| `GITHUB_ID` / `GITHUB_SECRET` | 否 | GitHub OAuth 登录 |
 | `NEXT_PUBLIC_APP_URL` | 否 | 分享链接等的站点地址，默认 `http://localhost:3000` |
-| `OSS_REGION` / `OSS_BUCKET` / `OSS_ACCESS_KEY` / `OSS_SECRET` | 否 | 阿里云 OSS 图片上传 |
+| `OSS_REGION` / `OSS_BUCKET` / `OSS_ACCESS_KEY_ID` / `OSS_ACCESS_KEY_SECRET` | 否 | 阿里云 OSS 图片上传 |
 
 ## 常用脚本
 
@@ -135,4 +133,4 @@ pnpm db:migrate   # Prisma 迁移
 - `docs/` —— 功能规划与设计文档
 - `AGENTS.md` —— AI 协作规范（架构、约定、开发流程）
 - `CODE_WIKI.md` —— 代码库导航索引
-- `DESIGN.md` —— 设计系统（令牌、组件规范）
+- `docs/design/DESIGN.md` —— 设计系统（令牌、组件规范）

@@ -15,7 +15,6 @@
 |---|---|
 | [development-handover.md](development-handover.md) | 开发交接文档：环境搭建、密钥、语音视频面试、数据库恢复 |
 | [语音视频面试配置指南.md](语音视频面试配置指南.md) | 语音 / 视频面试功能配置说明 |
-| [db-backup/README.md](db-backup/README.md) | 数据库备份位置与恢复方式（备份文件在仓库外，不入库） |
 
 ## 📋 产品规划
 | 文档 | 说明 |
