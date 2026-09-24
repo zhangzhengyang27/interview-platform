@@ -14,6 +14,7 @@ import { SolutionList } from "@/components/SolutionList"
 import { SolutionEditor } from "@/components/SolutionEditor"
 import { SolutionDetail } from "@/components/SolutionDetail"
 import { getQuestionTypeMeta, normalizeQuestionType } from "@/lib/question-types"
+import { useAuth } from "@/hooks/useAuth"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import type {
@@ -32,6 +33,7 @@ import InterviewContent from "./tabs/InterviewContent"
 import DiscussionContent from "./tabs/DiscussionContent"
 
 export default function PracticePage({ params }: { params: Promise<{ id: string }> }) {
+  const { isAuthenticated } = useAuth()
   const [questionId, setQuestionId] = useState<string>("")
   const [allQuestions, setAllQuestions] = useState<DbQuestionList[]>([])
   const [question, setQuestion] = useState<DbQuestion | null>(null)
@@ -267,8 +269,17 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
     }
   }
 
+  // 评论/题解/点赞需要登录（后端已同步收紧），未登录引导去登录页
+  const requireLogin = () => {
+    if (isAuthenticated) return true
+    flashMsg("请先登录后再操作")
+    router.push(`/login?callbackUrl=${encodeURIComponent(`/questions/${questionId}`)}`)
+    return false
+  }
+
   const submitInterviewAnswer = async (text: string) => {
     if (!questionId) return
+    if (!requireLogin()) return
     setInterviewLoading(true)
     try {
       const res = await fetch(`/api/questions/${questionId}/comments`, {
@@ -290,6 +301,7 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
 
   const upvoteComment = async (commentId: string) => {
     if (!questionId) return
+    if (!requireLogin()) return
     try {
       const res = await fetch(`/api/questions/${questionId}/comments/${commentId}`, {
         method: "PATCH"
@@ -317,11 +329,13 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
   }
 
   const handleWriteSolution = () => {
+    if (!requireLogin()) return
     setSolutionView("editor")
   }
 
   const handleSubmitSolution = async (content: string, language?: string) => {
     if (!questionId) return
+    if (!requireLogin()) return
     try {
       const res = await fetch(`/api/questions/${questionId}/solutions`, {
         method: "POST",

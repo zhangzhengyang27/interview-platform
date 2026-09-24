@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireAuth, getCurrentUser } from "@/lib/session";
+
+const MAX_CONTENT_LENGTH = 5000;
 
 export async function GET(
   request: NextRequest,
@@ -31,24 +33,32 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // 评论必须登录：杜绝匿名冒名与不可治理的垃圾内容
+    const authError = await requireAuth();
+    if (authError) return authError;
+    const user = await getCurrentUser();
+
     const { id } = await params;
     const body = await request.json();
-    const { content, author } = body;
+    const content: string | undefined = body.content;
 
     if (!content || !content.trim()) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
+    if (content.length > MAX_CONTENT_LENGTH) {
+      return NextResponse.json(
+        { error: `评论过长，最多 ${MAX_CONTENT_LENGTH} 字符` },
+        { status: 400 }
+      );
+    }
 
-    // 可选鉴权：登录用户记录 userId
-    const session = await auth();
-    const userId = session?.user?.id ?? null;
-
+    // 作者名取自登录账号，不接受客户端自填（防冒名）
     const comment = await prisma.comment.create({
       data: {
         questionId: id,
         content: content.trim(),
-        author: author?.trim() || null,
-        userId,
+        author: user!.name ?? null,
+        userId: user!.id,
       },
     });
 

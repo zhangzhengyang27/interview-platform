@@ -1,6 +1,8 @@
 "use client";
 
 import { memo, useState } from "react";
+import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 import type { Comment } from "../types";
 
 const DiscussionContent = memo(function DiscussionContent({
@@ -12,6 +14,7 @@ const DiscussionContent = memo(function DiscussionContent({
   comments: Comment[];
   onUpvote: (id: string) => void;
 }) {
+  const { isAuthenticated } = useAuth();
   const [commentText, setCommentText] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
 
@@ -40,35 +43,53 @@ const DiscussionContent = memo(function DiscussionContent({
         className="shrink-0 p-4 border-b"
         style={{ borderColor: "var(--outline-variant)" }}
       >
-        <div
-          className="flex gap-2"
-          style={{ backgroundColor: "var(--surface-container)", borderRadius: "8px", padding: "8px" }}
-        >
-          <textarea
-            className="flex-1 bg-transparent border-none text-on-surface text-sm resize-none outline-none placeholder:text-on-surface-variant"
-            placeholder="写下你的回答或讨论..."
-            rows={2}
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault();
-                submitComment();
-              }
-            }}
-          />
-          <button
-            onClick={submitComment}
-            disabled={!commentText.trim() || commentLoading}
-            className="self-end px-3 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-40"
-            style={{ backgroundColor: "var(--primary)", color: "var(--on-primary)" }}
+        {isAuthenticated ? (
+          <>
+            <div
+              className="flex gap-2"
+              style={{ backgroundColor: "var(--surface-container)", borderRadius: "8px", padding: "8px" }}
+            >
+              <textarea
+                className="flex-1 bg-transparent border-none text-on-surface text-sm resize-none outline-none placeholder:text-on-surface-variant"
+                placeholder="写下你的回答或讨论..."
+                rows={2}
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    submitComment();
+                  }
+                }}
+              />
+              <button
+                onClick={submitComment}
+                disabled={!commentText.trim() || commentLoading}
+                className="self-end px-3 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-40"
+                style={{ backgroundColor: "var(--primary)", color: "var(--on-primary)" }}
+              >
+                {commentLoading ? "发送中..." : "发布"}
+              </button>
+            </div>
+            <p className="text-[11px] text-on-surface-variant mt-1 px-1">
+              按 Ctrl+Enter 快速发布
+            </p>
+          </>
+        ) : (
+          <div
+            className="flex items-center justify-between gap-3 text-sm"
+            style={{ backgroundColor: "var(--surface-container)", borderRadius: "8px", padding: "12px" }}
           >
-            {commentLoading ? "发送中..." : "发布"}
-          </button>
-        </div>
-        <p className="text-[11px] text-on-surface-variant mt-1 px-1">
-          按 Ctrl+Enter 快速发布
-        </p>
+            <span className="text-on-surface-variant">登录后即可参与讨论</span>
+            <Link
+              href={`/login?callbackUrl=${encodeURIComponent(`/questions/${questionId}`)}`}
+              className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
+              style={{ backgroundColor: "var(--primary)", color: "var(--on-primary)" }}
+            >
+              去登录
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
