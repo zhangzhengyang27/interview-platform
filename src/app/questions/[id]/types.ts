@@ -17,7 +17,6 @@ export interface DbQuestion {
   company: string | null;
   tags: { tag: string }[];
   comments: Comment[];
-  practiceHistory: { status: string; durationSeconds: number | null; attemptedAt: string }[];
 }
 
 export interface DbQuestionList {

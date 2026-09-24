@@ -10,7 +10,15 @@ export async function GET(
     const { id } = await params;
     const question = await prisma.question.findUnique({
       where: { id },
-      include: { tags: true, practiceHistory: true, comments: true },
+      // practiceHistory 含所有用户的做题记录（泄露他人数据且前端未使用），
+      // 不再返回；comments 限制最近 50 条
+      include: {
+        tags: true,
+        comments: {
+          orderBy: { createdAt: "desc" as const },
+          take: 50,
+        },
+      },
     });
 
     if (!question) {
