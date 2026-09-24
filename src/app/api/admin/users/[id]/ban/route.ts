@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin-auth';
+import { getCurrentUser } from '@/lib/session';
 
 export async function PATCH(
   request: NextRequest,
@@ -12,14 +13,27 @@ export async function PATCH(
   try {
     const { id } = await params;
     const { banned } = await request.json();
-    
-    // 使用 bio 字段存储封禁状态（临时方案）
-    // 更好的方案是在 User 模型中添加 banned 字段
+
+    if (typeof banned !== 'boolean') {
+      return NextResponse.json({ error: 'banned 必须为布尔值' }, { status: 400 });
+    }
+
+    // 不能封禁自己（避免管理员自锁；Bearer JWT 调用方无 session，跳过此检查）
+    const actor = await getCurrentUser();
+    if (actor?.id && actor.id === id) {
+      return NextResponse.json({ error: '不能封禁自己的账号' }, { status: 400 });
+    }
+
+    const target = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+    if (!target) {
+      return NextResponse.json({ error: '用户不存在' }, { status: 404 });
+    }
+
     const user = await prisma.user.update({
       where: { id },
-      data: { 
-        bio: banned ? '[BANNED]' : null 
-      },
+      data: { banned },
+      // 白名单脱敏：不回传 password
+      select: { id: true, email: true, name: true, role: true, banned: true },
     });
 
     return NextResponse.json(user);

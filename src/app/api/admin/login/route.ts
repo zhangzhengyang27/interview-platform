@@ -57,6 +57,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 被封禁用户不放行
+    if (user.banned) {
+      return NextResponse.json(
+        { error: "账号已被封禁" },
+        { status: 403 }
+      );
+    }
+
     // 检查是否是管理员
     if (user.role !== "admin") {
       return NextResponse.json(

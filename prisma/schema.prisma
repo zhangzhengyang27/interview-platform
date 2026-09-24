@@ -18,6 +18,7 @@ model User {
   image         String?
   emailVerified DateTime? @map("email_verified")
   role          String    @default("user")
+  banned        Boolean   @default(false)
   bio                 String?
   emailNotifications  Boolean   @default(true) @map("email_notifications")
   reminderEnabled     Boolean   @default(true) @map("reminder_enabled")

@@ -50,6 +50,13 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.password) return null;
 
+        // 被封禁用户禁止登录
+        if (user.banned) {
+          const error = new Error("ACCOUNT_BANNED");
+          (error as Error & { code?: string }).code = "ACCOUNT_BANNED";
+          throw error;
+        }
+
         // 邮箱未验证：禁止登录，前端据此提示先完成验证
         if (!user.emailVerified) {
           const error = new Error("EMAIL_NOT_VERIFIED");
@@ -105,8 +112,13 @@ export const authOptions: NextAuthOptions = {
           try {
             const fresh = await prisma.user.findUnique({
               where: { id: token.id },
-              select: { image: true, name: true, role: true },
+              select: { image: true, name: true, role: true, banned: true },
             });
+            if (fresh?.banned) {
+              // 被封禁用户：返回 null 会话（JWT 无法吊销，按请求即时拒签），
+              // getServerSession 拿到 null → 所有 API 401、前端视为未登录
+              return null as unknown as typeof session;
+            }
             if (fresh) {
               session.user.image = fresh.image;
               if (fresh.name) session.user.name = fresh.name;
