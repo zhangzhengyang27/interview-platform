@@ -1,14 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth, getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
+
+// 校验计划归属：返回 403 响应或 null
+async function checkOwnership(planId: string, userId: string) {
+  const plan = await prisma.studyPlan.findUnique({
+    where: { id: planId },
+    select: { userId: true },
+  });
+  if (!plan) return { plan: null, error: NextResponse.json({ error: "学习计划不存在" }, { status: 404 }) };
+  if (plan.userId !== userId) {
+    return { plan: null, error: NextResponse.json({ error: "无权访问此学习计划" }, { status: 403 }) };
+  }
+  return { plan, error: null };
+}
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
   try {
     const { id } = await params;
+    const { error } = await checkOwnership(id, user!.id);
+    if (error) return error;
 
     const plan = await prisma.studyPlan.findUnique({
       where: { id },
@@ -24,14 +44,15 @@ export async function GET(
                     id: true,
                     title: true,
                     difficulty: true,
-                    mastery: true,
                   },
                 },
               },
             },
           },
         },
-        progress: true,
+        progress: {
+          where: { userId: user!.id },
+        },
       },
     });
 
@@ -41,6 +62,16 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    // 合并当前用户的题目掌握状态
+    const questionIds = plan.days.flatMap((day) => day.items.map((item) => item.question.id));
+    const states = questionIds.length
+      ? await prisma.userQuestionState.findMany({
+          where: { userId: user!.id, questionId: { in: questionIds } },
+          select: { questionId: true, mastery: true },
+        })
+      : [];
+    const stateMap = new Map(states.map((s) => [s.questionId, s.mastery]));
 
     const totalQuestions = plan.days.reduce(
       (sum, day) => sum + day.items.length,
@@ -59,7 +90,10 @@ export async function GET(
         items: day.items.map((item) => ({
           id: item.id,
           sortOrder: item.sortOrder,
-          question: item.question,
+          question: {
+            ...item.question,
+            mastery: stateMap.get(item.question.id) ?? "unsolved",
+          },
         })),
       })),
       progress: plan.progress.map((p) => ({
@@ -84,8 +118,15 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
   try {
     const { id } = await params;
+    const { error } = await checkOwnership(id, user!.id);
+    if (error) return error;
+
     const body = await request.json();
     const { title, description, totalDays } = body;
 
@@ -168,20 +209,14 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
   try {
     const { id } = await params;
-
-    // 验证学习计划是否存在
-    const existingPlan = await prisma.studyPlan.findUnique({
-      where: { id },
-    });
-
-    if (!existingPlan) {
-      return NextResponse.json(
-        { error: "学习计划不存在" },
-        { status: 404 }
-      );
-    }
+    const { error } = await checkOwnership(id, user!.id);
+    if (error) return error;
 
     // 删除学习计划（级联删除相关的 days、items、progress）
     await prisma.studyPlan.delete({

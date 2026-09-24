@@ -8,10 +8,18 @@ vi.mock("@/lib/prisma", () => ({
       findMany: vi.fn(),
       count: vi.fn(),
     },
+    userQuestionState: { findMany: vi.fn() },
   },
 }))
 
+vi.mock("@/lib/session", () => ({
+  optionalAuth: vi.fn(),
+  requireAuth: vi.fn(),
+  getCurrentUser: vi.fn(),
+}))
+
 import { prisma } from "@/lib/prisma"
+import { optionalAuth } from "@/lib/session"
 import { GET } from "./route"
 
 beforeEach(() => vi.clearAllMocks())
@@ -22,6 +30,7 @@ function req(url: string): NextRequest {
 
 describe("GET /api/questions", () => {
   it("默认按 createdAt desc 排序", async () => {
+    ;(optionalAuth as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null)
     ;(prisma.category.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([])
     ;(prisma.question.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([])
     ;(prisma.question.count as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(0)
@@ -33,6 +42,7 @@ describe("GET /api/questions", () => {
   })
 
   it("支持按 encounterCount desc 排序", async () => {
+    ;(optionalAuth as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null)
     ;(prisma.category.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([])
     ;(prisma.question.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([])
     ;(prisma.question.count as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(0)

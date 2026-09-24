@@ -12,7 +12,7 @@ export async function GET() {
 
   const totalPractices = await prisma.practiceHistory.count({ where: { userId } });
   const completedCount = await prisma.practiceHistory.count({ where: { userId, status: "completed" } });
-  const masteredCount = await prisma.question.count({ where: { mastery: "mastered" } });
+  const masteredCount = await prisma.userQuestionState.count({ where: { userId, mastery: "mastered" } });
 
   // 连续打卡数据从当前用户的 PracticeHistory 推导
   let streakData = { currentStreak: 0, longestStreak: 0 };

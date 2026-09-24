@@ -248,10 +248,13 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
 
   const toggleBookmark = async () => {
     if (!questionId || actionLoading) return
+    // 收藏状态属于当前用户（UserQuestionState），此前误调 admin 权限的
+    // PATCH /api/questions/[id] 导致普通用户 403 静默失败
+    if (!requireLogin()) return
     setActionLoading(true)
     try {
       const next = !isBookmarked
-      const res = await fetch(`/api/questions/${questionId}`, {
+      const res = await fetch(`/api/questions/${questionId}/state`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isBookmarked: next })

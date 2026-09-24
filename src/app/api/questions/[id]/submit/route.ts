@@ -52,6 +52,23 @@ export async function POST(
           durationSeconds: Math.round(totalDuration / 1000),
         },
       });
+
+      // 通过判题后自动把个人掌握状态从 unsolved 推进到 learning
+      // （不回退已标记 mastered/learning 的状态）
+      const existingState = await prisma.userQuestionState.findUnique({
+        where: { userId_questionId: { userId, questionId } },
+        select: { mastery: true },
+      });
+      if (!existingState) {
+        await prisma.userQuestionState.create({
+          data: { userId, questionId, mastery: "learning" },
+        });
+      } else if (existingState.mastery === "unsolved") {
+        await prisma.userQuestionState.update({
+          where: { userId_questionId: { userId, questionId } },
+          data: { mastery: "learning" },
+        });
+      }
     }
 
     return NextResponse.json({

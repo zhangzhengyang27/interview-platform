@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth, getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 /**
  * POST /api/learning-paths/[id]/join
- * 将学习路线一键加入学习计划
+ * 将学习路线一键加入学习计划（需登录，生成的计划归属当前用户）
  */
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
   try {
     const { id: pathId } = await params;
 
@@ -41,7 +46,7 @@ export async function POST(
       ...new Set(learningPath.items.map((item) => item.dayNumber)),
     ].sort((a, b) => a - b);
 
-    // 3. 创建学习计划（StudyPlan + StudyPlanDay + StudyPlanItem）
+    // 3. 创建学习计划（StudyPlan + StudyPlanDay + StudyPlanItem），归属当前用户
     const plan = await prisma.studyPlan.create({
       data: {
         title: `${learningPath.icon ?? ""} ${learningPath.title}`,
@@ -50,6 +55,7 @@ export async function POST(
           : undefined,
         icon: learningPath.icon,
         totalDays: dayNumbers.length,
+        userId: user!.id,
         days: {
           create: dayNumbers.map((dayNumber) => {
             const dayItems = learningPath.items.filter(

@@ -1,20 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth, getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
   try {
     const search = request.nextUrl.searchParams.get("search")?.trim();
+    // 学习计划是用户私有数据：只返回本人计划
     const plans = await prisma.studyPlan.findMany({
-      where: search
-        ? {
-            OR: [
-              { title: { contains: search, mode: "insensitive" } },
-              { description: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {},
+      where: {
+        userId: user!.id,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search, mode: "insensitive" } },
+                { description: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      },
       orderBy: { createdAt: "desc" },
       include: {
         days: {
@@ -22,7 +31,9 @@ export async function GET(request: NextRequest) {
             items: true,
           },
         },
-        progress: true,
+        progress: {
+          where: { userId: user!.id },
+        },
       },
     });
 
@@ -57,6 +68,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
   try {
     const body = await request.json();
     const { title, description, totalDays } = body;
@@ -75,11 +90,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (totalDays > 365) {
+      return NextResponse.json(
+        { error: "totalDays 不能超过 365" },
+        { status: 400 }
+      );
+    }
+
     const plan = await prisma.studyPlan.create({
       data: {
         title,
         description: description ?? null,
         totalDays,
+        userId: user!.id,
         days: {
           create: Array.from({ length: totalDays }, (_, i) => ({
             dayNumber: i + 1,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
+import { optionalAuth } from "@/lib/session";
 
 export async function GET(
   _request: NextRequest,
@@ -25,7 +26,20 @@ export async function GET(
       return NextResponse.json({ error: "题目不存在" }, { status: 404 });
     }
 
-    return NextResponse.json(question);
+    // 合并当前用户的个人掌握/收藏状态
+    const session = await optionalAuth();
+    const userId = session?.user?.id as string | undefined;
+    const state = userId
+      ? await prisma.userQuestionState.findUnique({
+          where: { userId_questionId: { userId, questionId: id } },
+        })
+      : null;
+
+    return NextResponse.json({
+      ...question,
+      mastery: state?.mastery ?? "unsolved",
+      isBookmarked: state?.isBookmarked ?? false,
+    });
   } catch (error) {
     console.error("GET /api/questions/[id] error:", error);
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
@@ -52,8 +66,6 @@ export async function PATCH(
       jobRole,
       categoryId,
       tags,
-      mastery,
-      isBookmarked,
       answer,
       questionType,
     } = body;
@@ -67,8 +79,6 @@ export async function PATCH(
     if (company !== undefined) data.company = company;
     if (jobRole !== undefined) data.jobRole = jobRole;
     if (categoryId !== undefined) data.categoryId = categoryId;
-    if (mastery !== undefined) data.mastery = mastery;
-    if (isBookmarked !== undefined) data.isBookmarked = isBookmarked;
     if (questionType !== undefined) data.questionType = questionType;
     if (answer !== undefined) data.answer = answer;
 

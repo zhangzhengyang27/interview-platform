@@ -45,7 +45,8 @@ export async function GET() {
       monthlyCount,
       recentPractices,
       heatmapPractices,
-      masteryStats,
+      stateGroup,
+      totalQuestions,
       uniqueQuestions,
     ] = await Promise.all([
       // Period counts
@@ -75,11 +76,13 @@ export async function GET() {
         where: { userId, attemptedAt: { gte: ninetyDaysAgoUtc } },
         select: { attemptedAt: true },
       }),
-      // Mastery breakdown across ALL questions
-      prisma.question.groupBy({
+      // Mastery breakdown by the current user's personal question states
+      prisma.userQuestionState.groupBy({
         by: ["mastery"],
+        where: { userId },
         _count: true,
       }),
+      prisma.question.count(),
       // Unique questions ever practiced by the current user
       prisma.practiceHistory.groupBy({
         by: ["questionId"],
@@ -127,10 +130,12 @@ export async function GET() {
     }
 
     // ── Overall stats ─────────────────────────────────────────────────────
-    const masteryLookup: Record<string, number> = {};
-    for (const row of masteryStats) {
-      masteryLookup[row.mastery] = row._count;
+    const stateLookup: Record<string, number> = {};
+    for (const row of stateGroup) {
+      stateLookup[row.mastery] = row._count;
     }
+    const masteredCount = stateLookup["mastered"] ?? 0;
+    const learningCount = stateLookup["learning"] ?? 0;
 
     return NextResponse.json({
       dailyCount,
@@ -141,9 +146,9 @@ export async function GET() {
       heatmap,
       overallStats: {
         totalSeen: uniqueQuestions.length,
-        mastered: masteryLookup["mastered"] ?? 0,
-        learning: masteryLookup["learning"] ?? 0,
-        unsolved: masteryLookup["unsolved"] ?? 0,
+        mastered: masteredCount,
+        learning: learningCount,
+        unsolved: totalQuestions - masteredCount - learningCount,
       },
     });
   } catch (error) {

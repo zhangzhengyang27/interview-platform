@@ -76,7 +76,8 @@ export async function POST(
   if (interview.status === "completed") return jsonError("该面试已结束", 400);
 
   // 归属验证：只能操作自己的面试
-  if (interview.userId && interview.userId !== user?.id) {
+  // 严格归属校验：userId 为 null 的历史记录同样拒绝（多用户数据隔离）
+  if (interview.userId !== user?.id) {
     return jsonError("无权操作此面试", 403);
   }
 

@@ -27,7 +27,8 @@ export async function DELETE(
     }
 
     // 归属验证：只能删除自己的面试
-    if (interview.userId && interview.userId !== user?.id) {
+    // 严格归属校验：userId 为 null 的历史记录同样拒绝（多用户数据隔离）
+  if (interview.userId !== user?.id) {
       return new Response(JSON.stringify({ error: "无权删除此面试" }), {
         status: 403,
         headers: { "Content-Type": "application/json" },

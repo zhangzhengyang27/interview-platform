@@ -43,6 +43,9 @@ model User {
   testPapers         TestPaper[]
   testPaperSubmissions TestPaperSubmission[]
   questionEdits      QuestionEdit[]
+  questionStates     UserQuestionState[]
+  userStreaks        UserStreak[]
+  studyPlanProgress  StudyPlanProgress[]
 
   @@map("users")
 }
@@ -159,6 +162,7 @@ model Question {
   comments      Comment[]
   studyPlanItems StudyPlanItem[]
   studyPlanProgress StudyPlanProgress[]
+  userStates UserQuestionState[]
   testCases       TestCase[]
   solutions       Solution[]
   bookmarkItems  BookmarkItem[]
@@ -293,6 +297,41 @@ model Streak {
   @@map("streaks")
 }
 
+// 用户维度的题目掌握/收藏状态（替代 Question 上的全局 mastery/isBookmarked 字段）
+model UserQuestionState {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  questionId   String   @map("question_id")
+  mastery      String   @default("unsolved") // "unsolved" | "learning" | "mastered"
+  isBookmarked Boolean  @default(false) @map("is_bookmarked")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@index([userId, mastery])
+  @@map("user_question_states")
+}
+
+// 用户维度的每日打卡快照与目标（替代全局共享的 Streak 表）
+model UserStreak {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  date          DateTime
+  questionCount Int      @default(0) @map("question_count")
+  dailyGoal     Int      @default(5) @map("daily_goal")
+  goalMet       Boolean  @default(false) @map("goal_met")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("user_streaks")
+}
+
 model MockInterview {
   id           String   @id @default(uuid())
   direction    String
@@ -372,13 +411,15 @@ model StudyPlanItem {
 model StudyPlanProgress {
   id           String   @id @default(uuid())
   studyPlanId  String   @map("study_plan_id")
+  userId       String   @map("user_id")
   questionId   String   @map("question_id")
   completedAt  DateTime @default(now()) @map("completed_at")
 
   studyPlan    StudyPlan @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   question     Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
-  @@unique([studyPlanId, questionId])
+  @@unique([studyPlanId, userId, questionId])
   @@map("study_plan_progress")
 }
 

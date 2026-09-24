@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDueReviewQuestions } from "@/lib/review-scheduler";
+import { requireAuth, getCurrentUser } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") ?? "20", 10);
@@ -9,14 +14,11 @@ export async function GET(request: NextRequest) {
 
     const stageFilter = stage !== null ? parseInt(stage, 10) : undefined;
 
-    const reviews = await getDueReviewQuestions(
-      undefined, // 单用户模式，暂不传 userId
-      limit,
-      stageFilter
-    );
+    // 复习数据按用户隔离（此前为全站共享）
+    const reviews = await getDueReviewQuestions(user!.id, limit, stageFilter);
 
     // 同时获取总数（不带 limit）
-    const allReviews = await getDueReviewQuestions(undefined, 1000, stageFilter);
+    const allReviews = await getDueReviewQuestions(user!.id, 1000, stageFilter);
 
     return NextResponse.json({
       dueCount: allReviews.length,

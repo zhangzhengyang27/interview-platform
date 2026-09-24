@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { optionalAuth } from "@/lib/session";
 
 /**
  * Get today's date string in YYYY-MM-DD format for Asia/Shanghai timezone.
@@ -32,28 +33,33 @@ export async function GET() {
     const todayStr = getTodayStr();
     const seed = dateSeed(todayStr);
 
-    // Step 1: Query candidate questions with priority ordering
-    // Priority 1: mastery === "unsolved"
-    const unsolvedQuestions = await prisma.question.findMany({
-      where: { mastery: "unsolved" },
-      include: { tags: true, category: true },
-    });
+    // 登录用户按个人掌握状态出题；游客从全量题库中出题
+    const session = await optionalAuth();
+    const userId = session?.user?.id as string | undefined;
 
-    let candidates = unsolvedQuestions;
+    const baseInclude = { include: { tags: true, category: true } } as const;
 
-    // Priority 2: mastery === "learning" if no unsolved
-    if (candidates.length === 0) {
+    // Priority 1: 未掌握（从未标记掌握的题，含显式 unsolved 与无状态记录）
+    let candidates = userId
+      ? await prisma.question.findMany({
+          ...baseInclude,
+          where: {
+            NOT: { userStates: { some: { userId, mastery: "mastered" } } },
+          },
+        })
+      : [];
+
+    // Priority 2: 学习中的题
+    if (candidates.length === 0 && userId) {
       candidates = await prisma.question.findMany({
-        where: { mastery: "learning" },
-        include: { tags: true, category: true },
+        ...baseInclude,
+        where: { userStates: { some: { userId, mastery: "learning" } } },
       });
     }
 
     // Fallback: all questions if both empty
     if (candidates.length === 0) {
-      candidates = await prisma.question.findMany({
-        include: { tags: true, category: true },
-      });
+      candidates = await prisma.question.findMany(baseInclude);
     }
 
     if (candidates.length === 0) {
@@ -63,13 +69,14 @@ export async function GET() {
       );
     }
 
-    // Step 2: Get categories used in the last 7 days from PracticeHistory
+    // Step 2: Get categories used in the last 7 days from PracticeHistory（按用户隔离）
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const recentHistory = await prisma.practiceHistory.findMany({
       where: {
         attemptedAt: { gte: sevenDaysAgo },
+        ...(userId ? { userId } : {}),
       },
       include: {
         question: { select: { categoryId: true } },

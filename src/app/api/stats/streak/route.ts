@@ -52,17 +52,18 @@ export async function GET() {
     const todayCount = todayPractices.length;
 
     // Look up today's Streak record for the user-configured dailyGoal.
-    const existingStreak = await prisma.streak.findUnique({
-      where: { date: todayMidnight },
+    const existingStreak = await prisma.userStreak.findUnique({
+      where: { userId_date: { userId, date: todayMidnight } },
     });
     const dailyGoal = existingStreak?.dailyGoal ?? 5;
     const goalMet = todayCount >= dailyGoal;
 
     // 6. Upsert today's Streak record with fresh numbers.
-    await prisma.streak.upsert({
-      where: { date: todayMidnight },
+    await prisma.userStreak.upsert({
+      where: { userId_date: { userId, date: todayMidnight } },
       update: { questionCount: todayCount, goalMet },
       create: {
+        userId,
         date: todayMidnight,
         questionCount: todayCount,
         dailyGoal,
@@ -123,10 +124,11 @@ export async function POST(request: NextRequest) {
     });
     const goalMet = todayPractices >= parsedGoal;
 
-    const streak = await prisma.streak.upsert({
-      where: { date: todayMidnight },
+    const streak = await prisma.userStreak.upsert({
+      where: { userId_date: { userId, date: todayMidnight } },
       update: { dailyGoal: parsedGoal, goalMet },
       create: {
+        userId,
         date: todayMidnight,
         questionCount: todayPractices,
         dailyGoal: parsedGoal,
