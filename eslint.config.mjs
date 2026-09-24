@@ -14,8 +14,6 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // 数据生成脚本（非业务代码，使用 require()）
     "scripts/**",
-    // 根目录 CommonJS 部署脚本（HTTPS 开发服务器，使用 require()）
-    "server.js",
     // 跳过类型检查的超大数据文件
     "src/data/backend-questions-supplement.ts",
   ]),
