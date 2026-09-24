@@ -20,6 +20,14 @@ export async function PATCH(
     const user = await prisma.user.update({
       where: { id },
       data: { role },
+      // 白名单脱敏：不回传 password 等敏感字段
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        image: true,
+        role: true,
+      },
     });
 
     return NextResponse.json(user);

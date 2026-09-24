@@ -66,6 +66,17 @@ export async function PATCH(request: Request) {
       ...(emailNotifications !== undefined && { emailNotifications }),
       ...(reminderEnabled !== undefined && { reminderEnabled }),
     },
+    // 白名单脱敏：不回传 password 等敏感字段
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      image: true,
+      role: true,
+      bio: true,
+      emailNotifications: true,
+      reminderEnabled: true,
+    },
   });
 
   return NextResponse.json(updated);
