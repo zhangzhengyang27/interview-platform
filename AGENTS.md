@@ -16,7 +16,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 这是一个 **Next.js 16 全栈单体应用**，已是从「单一用户 Mock 版」演进为 **多用户平台**：
 
 - ✅ **有完整用户认证**：NextAuth v4（Credentials 邮箱密码 + 邮箱验证码注册，JWT 会话）。`src/lib/auth.ts`。无 GitHub OAuth。
-- ✅ **有真实数据库**：PostgreSQL + Prisma 7，42 个数据模型，非 Mock。
+- ✅ **有真实数据库**：PostgreSQL + Prisma 7，43 个数据模型，非 Mock。
 - ✅ **有社区/社交功能**：关注、通知、举报、分享、收藏夹、题解、评论。
 - ✅ **有竞赛/学习路径/试卷/间隔复习** 等完整业务模块。
 - ⚠️ **代码执行走 Piston 在线 API**（`src/lib/code-runner.ts`），非本地 Docker 沙箱；根目录 `docker/` 是遗留目录、未被引用。
@@ -26,7 +26,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ### AI 助手快速提醒（避免被旧文档误导）
 
-1. **这是多用户全栈平台，不是单用户 Mock 版**。有 NextAuth 认证、PostgreSQL + Prisma（42 个模型）、社区社交、竞赛、学习路径、试卷、间隔复习。
+1. **这是多用户全栈平台，不是单用户 Mock 版**。有 NextAuth 认证、PostgreSQL + Prisma（43 个模型）、社区社交、竞赛、学习路径、试卷、间隔复习。
 2. **代码与现实以 `src/` 为准**。`AGENTS.md` / `CODE_WIKI.md` 是经校正的文档；任何早期说「单用户、无认证、13 个模型」的描述均已过时。
 3. **技术栈实际为 Next.js 16 + React 19 + Prisma 7 + DeepSeek(AI) + Piston(代码执行)**。注意 Next.js 16 已 breaking change，写代码前先读 `node_modules/next/dist/docs/`。
 
@@ -65,7 +65,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
-## 4. 数据模型（42 个，节选关键）
+## 4. 数据模型（43 个，节选关键）
 
 用户与认证：`User` `Account` `Session` `VerificationToken`
 社交：`Follow` `Notification` `Report` `ShareLink` `BookmarkFolder` `BookmarkItem`

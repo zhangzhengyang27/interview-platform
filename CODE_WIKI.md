@@ -10,7 +10,7 @@
 | 旧文档（错误） | 真实情况 |
 | --- | --- |
 | 单一用户、无认证 | 多用户 + NextAuth v4（Credentials 邮箱密码，JWT） |
-| 13 个数据模型 | **42 个**数据模型（见 §5） |
+| 13 个数据模型 | **43 个**数据模型（见 §5） |
 | Next.js 15 | **Next.js 16.2.7**（App Router + Turbopack） |
 | 火山方舟 / 双轨 AI | **DeepSeek**（`deepseek-chat`，SSE 流式） |
 | 本地 Docker 代码沙箱 | **Piston 在线 API**（`src/lib/code-runner.ts`） |
@@ -104,7 +104,7 @@ interview-platform/
 
 | 模块 | 路径前缀 | 说明 |
 | --- | --- | --- |
-| 题目 | `/api/questions` `/api/categories` `/api/practice` | 题库 CRUD、个人状态（`[id]/state`）、练习记录 |
+| 题目 | `/api/questions` `/api/categories` `/api/practice` | 题库 CRUD、个人状态（`[id]/state`）、渐进式提示（`[id]/hints`）、练习记录 |
 | 评论 | `/api/questions/[id]/comments` | 评论（需登录）、一层回复、点赞、删除 |
 | 题解 | `/api/solutions` `/api/questions/[id]/solutions` | 题解、编辑、点赞、按用户查询 |
 | AI | `/api/ai` `/api/ai/evaluate` `/api/ai/review-code` | 对话（SSE）、评分、代码点评（均限流） |
@@ -126,7 +126,7 @@ interview-platform/
 
 ---
 
-## 5. 数据模型 (`prisma/schema.prisma`，42 个)
+## 5. 数据模型 (`prisma/schema.prisma`，43 个)
 
 **用户与认证**：`User` `Account` `Session` `VerificationToken`
 **社交**：`Follow` `Notification` `Report` `ShareLink` `BookmarkFolder` `BookmarkItem`
