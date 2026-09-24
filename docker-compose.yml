@@ -1,22 +1,33 @@
 # mianshi (面试网) compose
+# 数据库连接串只作为运行期环境变量注入（构建期不再接收 DATABASE_URL）
 name: mianshi
 services:
   mianshi:
     build:
       context: .
       args:
-        DATABASE_URL: ${DATABASE_URL}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     image: mianshi:latest
     ports:
       - "4300:4300"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4300/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
     environment:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL}
       AUTH_SECRET: ${AUTH_SECRET}
-      AUTH_URL: ${AUTH_URL}
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      AUTH_URL: ${AUTH_URL:-http://localhost:4300}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-${AUTH_URL:-http://localhost:4300}}
       NEXTAUTH_SECRET: ${AUTH_SECRET}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
