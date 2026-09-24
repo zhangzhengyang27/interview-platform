@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>面试网 - 题库管理</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#43302a",
+                    "on-secondary-fixed-variant": "#464744",
+                    "on-surface-variant": "#e5beb2",
+                    "tertiary-container": "#3491ff",
+                    "tertiary-fixed": "#d5e3ff",
+                    "on-surface": "#fadcd3",
+                    "primary": "#ffb59d",
+                    "secondary-container": "#484a46",
+                    "on-secondary-container": "#b8b9b4",
+                    "on-error": "#690005",
+                    "on-tertiary": "#003061",
+                    "tertiary-fixed-dim": "#a8c8ff",
+                    "background": "#1e100b",
+                    "on-primary-container": "#511400",
+                    "surface-dim": "#1e100b",
+                    "secondary-fixed": "#e3e3de",
+                    "inverse-surface": "#fadcd3",
+                    "surface-container-low": "#281813",
+                    "on-tertiary-fixed-variant": "#004689",
+                    "surface-container-lowest": "#180b06",
+                    "on-tertiary-container": "#002955",
+                    "on-primary-fixed": "#390b00",
+                    "inverse-on-surface": "#3e2c26",
+                    "on-primary": "#5d1800",
+                    "surface-container-highest": "#43302a",
+                    "surface-container": "#2c1c16",
+                    "primary-container": "#ff5712",
+                    "outline": "#ac897e",
+                    "primary-fixed-dim": "#ffb59d",
+                    "on-background": "#fadcd3",
+                    "tertiary": "#a8c8ff",
+                    "secondary-fixed-dim": "#c6c7c2",
+                    "secondary": "#c6c7c2",
+                    "on-error-container": "#ffdad6",
+                    "on-secondary": "#2f312e",
+                    "on-primary-fixed-variant": "#832600",
+                    "surface-bright": "#48352f",
+                    "on-tertiary-fixed": "#001b3c",
+                    "surface-tint": "#ffb59d",
+                    "surface": "#1e100b",
+                    "error-container": "#93000a",
+                    "surface-container-high": "#372620",
+                    "on-secondary-fixed": "#1a1c19",
+                    "outline-variant": "#5c4038",
+                    "primary-fixed": "#ffdbd0",
+                    "error": "#ffb4ab",
+                    "inverse-primary": "#ac3400"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "nav-height": "56px",
+                    "gutter": "16px",
+                    "margin-desktop": "24px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "label-caps": ["JetBrains Mono"],
+                    "display-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "code-md": ["JetBrains Mono"],
+                    "display-lg-mobile": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                    "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                    "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                    "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                    "code-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                    "display-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                    "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for IDE feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #48352f;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5c4038;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-sm h-screen flex flex-col overflow-hidden selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-desktop h-nav-height bg-surface-bright dark:bg-surface-bright border-b border-outline-variant dark:border-outline-variant">
+<div class="flex items-center gap-gutter mr-8">
+<span class="font-display-lg text-display-lg text-primary dark:text-primary">面试网</span>
+</div>
+<div class="flex-1 flex items-center h-full gap-2">
+<a class="h-full flex items-center px-4 text-primary dark:text-primary border-b-2 border-primary font-bold hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all duration-300" href="#">面试宝典</a>
+<a class="h-full flex items-center px-4 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all duration-300" href="#">真题实战</a>
+<a class="h-full flex items-center px-4 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all duration-300" href="#">能力测评</a>
+<a class="h-full flex items-center px-4 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all duration-300" href="#">社区交流</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 ease-out">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 ease-out">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer hover:border-primary transition-colors duration-300">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A futuristic digital avatar portraying an engineer in a minimalist tech environment. The lighting is high-contrast, casting sharp shadows that emphasize the professional, analytical mood. The color palette revolves around deep charcoal, muted rust, and crisp white highlights, aligning perfectly with a modern IDE dark theme interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2LtGaQ6AOHPNP2SLHMv3t3DWRN47tTKkpDCMBEem-m-ODWTraDQG6f7KDY2U_imqLy0XhfF_YFc0d0SxKZ28HTal4oA7s0Z6ojiE7HAiY9MrSR6FEBtWTCkZGDzzr4klAuYOr61GASySZVbZUU2ELt-UoJj4lZmoc72eNY4c1ion2gphLOlJfNCt2ZFMKxZ0oW0tePCTP1qabnRmqI-A6BtsJbh5moUYs1hx9qS2IIWQRz1p_MPTuJqmmd3j4IjBDodY8QobKXrOd"/>
+</div>
+</div>
+</nav>
+<!-- Main Layout Container -->
+<div class="flex flex-1 pt-[56px] h-full w-full">
+<!-- Left Sidebar (Filters) -->
+<aside class="w-[240px] shrink-0 bg-surface-container border-r border-outline-variant h-full overflow-y-auto flex flex-col">
+<div class="p-gutter border-b border-outline-variant">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded text-body-sm pl-8 pr-3 py-1.5 focus:outline-none focus:border-primary transition-colors duration-300 placeholder:text-on-surface-variant/50" placeholder="过滤标签或ID..." type="text"/>
+</div>
+</div>
+<div class="flex-1 p-gutter flex flex-col gap-6">
+<!-- Category Filter -->
+<div class="flex flex-col gap-3">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">分类域 (Category)</h3>
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="form-checkbox rounded bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container transition-all duration-300" type="checkbox"/>
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-body-sm text-on-surface group-hover:text-primary transition-colors">前端开发 (Frontend)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-checkbox rounded bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container transition-all duration-300" type="checkbox"/>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-body-sm text-on-surface group-hover:text-primary transition-colors">后端工程 (Java/Go)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-checkbox rounded bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container transition-all duration-300" type="checkbox"/>
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-body-sm text-on-surface group-hover:text-primary transition-colors">人工智能 (AI/ML)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-checkbox rounded bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container transition-all duration-300" type="checkbox"/>
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="text-body-sm text-on-surface group-hover:text-primary transition-colors">基础架构 (Infra)</span>
+</label>
+</div>
+</div>
+<!-- Difficulty Filter -->
+<div class="flex flex-col gap-3">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">难度级别 (Difficulty)</h3>
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="form-radio bg-surface-container border-outline-variant text-tertiary focus:ring-tertiary focus:ring-offset-surface-container transition-all duration-300" name="difficulty" type="radio"/>
+<span class="text-body-sm text-on-surface group-hover:text-tertiary transition-colors">全部 (All)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-radio bg-surface-container border-outline-variant text-tertiary focus:ring-tertiary focus:ring-offset-surface-container transition-all duration-300" name="difficulty" type="radio"/>
+<span class="text-body-sm text-on-surface group-hover:text-tertiary transition-colors">简单 (Easy)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-radio bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container transition-all duration-300" name="difficulty" type="radio"/>
+<span class="text-body-sm text-on-surface group-hover:text-primary transition-colors">中等 (Medium)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-radio bg-surface-container border-outline-variant text-error focus:ring-error focus:ring-offset-surface-container transition-all duration-300" name="difficulty" type="radio"/>
+<span class="text-body-sm text-on-surface group-hover:text-error transition-colors">困难 (Hard)</span>
+</label>
+</div>
+</div>
+<!-- Mastery Filter -->
+<div class="flex flex-col gap-3">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">掌握状态 (Status)</h3>
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="form-checkbox rounded bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container transition-all duration-300" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px] text-outline-variant">check_circle</span>
+<span class="text-body-sm text-on-surface group-hover:text-primary transition-colors">未掌握 (Unsolved)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-checkbox rounded bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container transition-all duration-300" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px] text-tertiary icon-fill">check_circle</span>
+<span class="text-body-sm text-on-surface group-hover:text-primary transition-colors">已掌握 (Solved)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-checkbox rounded bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container transition-all duration-300" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px] text-primary">bookmark</span>
+<span class="text-body-sm text-on-surface group-hover:text-primary transition-colors">已收藏 (Bookmarked)</span>
+</label>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Main Area -->
+<main class="flex-1 bg-background flex flex-col h-full overflow-hidden relative">
+<!-- Toolbar -->
+<div class="p-margin-desktop pb-0 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+<div class="flex-1 w-full max-w-2xl flex gap-2">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container border border-outline-variant text-on-surface rounded text-body-lg pl-10 pr-4 py-2 focus:outline-none focus:border-primary focus:bg-surface-container-highest transition-all duration-300 placeholder:text-on-surface-variant/50 shadow-sm" placeholder="搜索题目名称、考点或描述..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded font-body-sm font-semibold hover:bg-primary-fixed hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shadow-sm flex items-center gap-1">
+                        搜索
+                    </button>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-body-sm text-on-surface-variant">排序:</span>
+<select class="bg-surface-container border border-outline-variant text-on-surface text-body-sm rounded py-1.5 pl-3 pr-8 focus:outline-none focus:border-primary transition-colors cursor-pointer appearance-none">
+<option>默认 (ID升序)</option>
+<option>频率最高 (Hot)</option>
+<option>难度降序 (Hard First)</option>
+<option>最近更新 (Latest)</option>
+</select>
+</div>
+</div>
+<!-- Card Grid -->
+<div class="flex-1 overflow-y-auto p-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-unit*4 2xl:grid-cols-4">
+<!-- Card 1: Easy -->
+<div class="bg-surface-container border border-outline-variant rounded relative flex flex-col p-4 hover:border-primary hover:shadow-[0_4px_20px_rgba(255,181,157,0.05)] hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-tertiary"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-code-md text-code-md text-on-surface-variant">Q-1024</span>
+<button class="text-outline-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">bookmark</span>
+</button>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors line-clamp-2">实现 Promise.all() 的核心逻辑</h4>
+<div class="flex flex-wrap gap-2 mt-auto">
+<span class="px-2 py-0.5 rounded bg-tertiary/15 text-tertiary font-label-caps text-label-caps border border-tertiary/20">JavaScript</span>
+<span class="px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">异步编程</span>
+</div>
+</div>
+<!-- Card 2: Medium -->
+<div class="bg-surface-container border border-outline-variant rounded relative flex flex-col p-4 hover:border-primary hover:shadow-[0_4px_20px_rgba(255,181,157,0.05)] hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-primary"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-code-md text-code-md text-on-surface-variant">Q-2048</span>
+<button class="text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px] icon-fill">bookmark</span>
+</button>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors line-clamp-2">虚拟DOM的Diff算法深度解析</h4>
+<div class="flex flex-wrap gap-2 mt-auto">
+<span class="px-2 py-0.5 rounded bg-primary/15 text-primary font-label-caps text-label-caps border border-primary/20">React</span>
+<span class="px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">架构设计</span>
+</div>
+</div>
+<!-- Card 3: Hard -->
+<div class="bg-surface-container border border-outline-variant rounded relative flex flex-col p-4 hover:border-primary hover:shadow-[0_4px_20px_rgba(255,181,157,0.05)] hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-error"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-code-md text-code-md text-on-surface-variant">Q-3072</span>
+<button class="text-outline-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">bookmark</span>
+</button>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors line-clamp-2">高并发场景下分布式锁的设计与实现缺陷排查</h4>
+<div class="flex flex-wrap gap-2 mt-auto">
+<span class="px-2 py-0.5 rounded bg-error/15 text-error font-label-caps text-label-caps border border-error/20">System Design</span>
+<span class="px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">Redis</span>
+</div>
+</div>
+<!-- Card 4: Medium -->
+<div class="bg-surface-container border border-outline-variant rounded relative flex flex-col p-4 hover:border-primary hover:shadow-[0_4px_20px_rgba(255,181,157,0.05)] hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden opacity-60">
+<div class="absolute inset-0 bg-surface/50 z-10 pointer-events-none flex items-center justify-center backdrop-blur-[1px]">
+<span class="material-symbols-outlined text-[48px] text-tertiary icon-fill drop-shadow-md">check_circle</span>
+</div>
+<div class="absolute top-0 left-0 w-full h-[2px] bg-primary"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-code-md text-code-md text-on-surface-variant">Q-0512</span>
+<button class="text-outline-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">bookmark</span>
+</button>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors line-clamp-2">手写防抖(Debounce)和节流(Throttle)</h4>
+<div class="flex flex-wrap gap-2 mt-auto">
+<span class="px-2 py-0.5 rounded bg-primary/15 text-primary font-label-caps text-label-caps border border-primary/20">JavaScript</span>
+</div>
+</div>
+</div>
+<!-- Empty State (Hidden by default, shown for demonstration purposes as requested) -->
+<!-- 
+                <div class="flex flex-col items-center justify-center h-full text-center py-20">
+                    <span class="material-symbols-outlined text-[64px] text-outline-variant mb-4 font-light">inventory_2</span>
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-2">还没有添加题目</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">尝试调整过滤条件或开始创建您的第一个面试题储备。</p>
+                </div>
+                -->
+</div>
+<!-- Pagination & Footer Wrapper -->
+<div class="mt-auto border-t border-outline-variant bg-surface-container-low">
+<!-- Pagination -->
+<div class="flex items-center justify-between px-margin-desktop py-3">
+<span class="text-body-sm text-on-surface-variant">共 <span class="text-on-surface font-code-md">4</span> 题</span>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary/10 text-primary font-code-md text-sm transition-colors">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary font-code-md text-sm transition-colors">2</button>
+<span class="w-8 h-8 flex items-center justify-center text-on-surface-variant font-code-md text-sm">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Footer Component from JSON -->
+<footer class="w-full py-gutter px-margin-desktop flex flex-col md:flex-row justify-between items-center bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline-variant">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 md:mb-0">
+                        © 2024 面试网. All rights reserved for engineers.
+                    </div>
+<div class="flex items-center gap-6">
+<a class="font-body-sm text-body-sm text-on-secondary-fixed-variant hover:text-primary transition-colors duration-300 cursor-pointer" href="#">关于我们</a>
+<a class="font-body-sm text-body-sm text-on-secondary-fixed-variant hover:text-primary transition-colors duration-300 cursor-pointer" href="#">服务条款</a>
+<a class="font-body-sm text-body-sm text-on-secondary-fixed-variant hover:text-primary transition-colors duration-300 cursor-pointer" href="#">隐私政策</a>
+<a class="font-body-sm text-body-sm text-on-secondary-fixed-variant hover:text-primary transition-colors duration-300 cursor-pointer" href="#">联系我们</a>
+</div>
+</footer>
+</div>
+</main>
+</div>
+</body></html>

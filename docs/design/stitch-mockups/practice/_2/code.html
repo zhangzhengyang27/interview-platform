@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>面试网 - 真题实战</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#43302a",
+                        "on-secondary-fixed-variant": "#464744",
+                        "on-surface-variant": "#e5beb2",
+                        "tertiary-container": "#3491ff",
+                        "tertiary-fixed": "#d5e3ff",
+                        "on-surface": "#fadcd3",
+                        "primary": "#ffb59d",
+                        "secondary-container": "#484a46",
+                        "on-secondary-container": "#b8b9b4",
+                        "on-error": "#690005",
+                        "on-tertiary": "#003061",
+                        "tertiary-fixed-dim": "#a8c8ff",
+                        "background": "#1e100b",
+                        "on-primary-container": "#511400",
+                        "surface-dim": "#1e100b",
+                        "secondary-fixed": "#e3e3de",
+                        "inverse-surface": "#fadcd3",
+                        "surface-container-low": "#281813",
+                        "on-tertiary-fixed-variant": "#004689",
+                        "surface-container-lowest": "#180b06",
+                        "on-tertiary-container": "#002955",
+                        "on-primary-fixed": "#390b00",
+                        "inverse-on-surface": "#3e2c26",
+                        "on-primary": "#5d1800",
+                        "surface-container-highest": "#43302a",
+                        "surface-container": "#2c1c16",
+                        "primary-container": "#ff5712",
+                        "outline": "#ac897e",
+                        "primary-fixed-dim": "#ffb59d",
+                        "on-background": "#fadcd3",
+                        "tertiary": "#a8c8ff",
+                        "secondary-fixed-dim": "#c6c7c2",
+                        "secondary": "#c6c7c2",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#2f312e",
+                        "on-primary-fixed-variant": "#832600",
+                        "surface-bright": "#48352f",
+                        "on-tertiary-fixed": "#001b3c",
+                        "surface-tint": "#ffb59d",
+                        "surface": "#1e100b",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#372620",
+                        "on-secondary-fixed": "#1a1c19",
+                        "outline-variant": "#5c4038",
+                        "primary-fixed": "#ffdbd0",
+                        "error": "#ffb4ab",
+                        "inverse-primary": "#ac3400",
+                        "code-bg": "#1e1e1e",
+                        "success": "#4caf50"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "nav-height": "56px",
+                        "gutter": "16px",
+                        "margin-desktop": "24px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "code-md": ["JetBrains Mono"],
+                        "display-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .split-pane {
+            height: calc(100vh - 56px); /* Minus TopNavBar */
+        }
+        .code-lines {
+            counter-reset: line;
+        }
+        .code-lines > div::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 2rem;
+            margin-right: 1rem;
+            text-align: right;
+            color: #6e7681;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+        /* Markdown Styles for Question Pane */
+        .markdown-body h3 { font-size: 18px; font-weight: 600; margin-top: 1.5em; margin-bottom: 0.5em; color: var(--color-on-surface); }
+        .markdown-body p { margin-bottom: 1em; color: var(--color-on-surface-variant); }
+        .markdown-body pre { background-color: var(--color-surface-container); padding: 16px; border-radius: 4px; border: 1px solid var(--color-outline-variant); margin-bottom: 1em; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--color-on-surface); }
+        .markdown-body code { background-color: var(--color-surface-container); padding: 0.2em 0.4em; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--color-on-surface); }
+        .markdown-body ul { list-style-type: disc; padding-left: 2em; margin-bottom: 1em; color: var(--color-on-surface-variant); }
+        
+        /* Custom Scrollbar for IDE feel */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--color-surface-container-low); }
+        ::-webkit-scrollbar-thumb { background: var(--color-surface-variant); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-outline-variant); }
+    </style>
+</head>
+<body class="bg-background text-on-surface h-screen overflow-hidden flex flex-col font-body-sm text-body-sm">
+<!-- TopNavBar (Shared Component) -->
+<nav class="fixed top-0 left-0 w-full z-50 flex items-center px-margin-desktop h-nav-height bg-surface-bright dark:bg-surface-bright border-b border-outline-variant dark:border-outline-variant">
+<div class="flex items-center gap-6 flex-1">
+<span class="font-display-lg text-display-lg text-primary dark:text-primary font-bold">面试网</span>
+<div class="hidden md:flex gap-4">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all duration-300 px-3 py-2 rounded" href="#">面试宝典</a>
+<a class="text-primary dark:text-primary border-b-2 border-primary font-bold px-3 py-2" href="#">真题实战</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all duration-300 px-3 py-2 rounded" href="#">能力测评</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all duration-300 px-3 py-2 rounded" href="#">社区交流</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">settings</span></button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+</div>
+</div>
+</nav>
+<!-- Main Workspace -->
+<main class="flex-1 mt-nav-height flex flex-col md:flex-row split-pane">
+<!-- Left Pane: Question Description (45%) -->
+<section class="w-full md:w-[45%] h-full flex flex-col bg-surface-container-low border-r border-outline-variant">
+<!-- Header -->
+<header class="h-[48px] flex items-center justify-between px-gutter border-b border-outline-variant bg-surface-container-high shrink-0">
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant hover:text-primary flex items-center" title="Back">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-on-surface">15. 三数之和</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 rounded bg-[#ffb59d]/10 text-primary font-label-caps text-label-caps border border-primary/20">中等</span>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-margin-desktop markdown-body">
+<div class="flex gap-2 mb-6">
+<span class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">数组</span>
+<span class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">双指针</span>
+<span class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">排序</span>
+</div>
+<p>给你一个包含 <code>n</code> 个整数的数组 <code>nums</code>，判断 <code>nums</code> 中是否存在三个元素 <code>a，b，c</code> ，使得 <code>a + b + c = 0</code> ？请你找出所有和为 <code>0</code> 且不重复的三元组。</p>
+<p><strong>注意：</strong>答案中不可以包含重复的三元组。</p>
+<h3>示例 1：</h3>
+<pre><strong>输入：</strong>nums = [-1,0,1,2,-1,-4]
+<strong>输出：</strong>[[-1,-1,2],[-1,0,1]]
+<strong>解释：</strong>
+nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0 。
+nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0 。
+nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0 。
+不同的三元组是 [-1,0,1] 和 [-1,-1,2] 。
+注意，输出的顺序和三元组的顺序并不重要。</pre>
+<h3>示例 2：</h3>
+<pre><strong>输入：</strong>nums = [0,1,1]
+<strong>输出：</strong>[]
+<strong>解释：</strong>唯一可能的三元组和不为 0 。</pre>
+<h3>提示：</h3>
+<ul>
+<li><code>3 &lt;= nums.length &lt;= 3000</code></li>
+<li><code>-10<sup>5</sup> &lt;= nums[i] &lt;= 10<sup>5</sup></code></li>
+</ul>
+</div>
+<!-- Bottom Meta Bar -->
+<footer class="h-[56px] border-t border-outline-variant bg-surface-container flex items-center justify-between px-gutter shrink-0">
+<div class="flex gap-3">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+<span class="font-body-sm text-body-sm">收藏</span>
+</button>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">forum</span>
+<span class="font-body-sm text-body-sm">题解</span>
+</button>
+</div>
+<button class="border border-outline-variant text-primary hover:bg-surface-variant px-3 py-1.5 rounded transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">done_all</span>
+<span>标记为已掌握</span>
+</button>
+</footer>
+</section>
+<!-- Right Pane: Editor & Console (55%) -->
+<section class="w-full md:w-[55%] h-full flex flex-col bg-background">
+<!-- Editor Tabs & Toolbar -->
+<div class="flex flex-col shrink-0 border-b border-outline-variant bg-surface-container-high">
+<!-- Tabs -->
+<div class="flex h-[40px]">
+<div class="px-4 py-2 border-b-2 border-primary text-primary font-headline-md text-headline-md bg-surface-container text-sm flex items-center gap-2 cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">code</span>
+                        代码编辑器
+                    </div>
+<div class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors font-headline-md text-headline-md text-sm flex items-center gap-2 cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">description</span>
+                        答案解析
+                    </div>
+</div>
+<!-- Toolbar -->
+<div class="h-[40px] flex items-center justify-between px-gutter bg-surface-container border-t border-outline-variant">
+<div class="flex items-center gap-3">
+<select class="bg-surface-variant border border-outline-variant text-on-surface text-sm rounded px-2 py-1 outline-none focus:border-primary font-label-caps">
+<option>JavaScript</option>
+<option>Python3</option>
+<option>Java</option>
+<option>C++</option>
+</select>
+<button class="text-on-surface-variant hover:text-on-surface" title="Theme">
+<span class="material-symbols-outlined text-[18px]">dark_mode</span>
+</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="border border-outline-variant text-on-surface hover:text-primary hover:border-primary px-3 py-1 rounded text-sm transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                            运行代码
+                        </button>
+<button class="bg-primary text-on-primary-container px-4 py-1 rounded text-sm font-bold hover:opacity-90 transition-opacity flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">cloud_upload</span>
+                            提交
+                        </button>
+</div>
+</div>
+</div>
+<!-- Editor Body -->
+<div class="flex-1 bg-code-bg overflow-y-auto font-code-md text-code-md text-[#d4d4d4] p-4 code-lines leading-relaxed focus:outline-none" contenteditable="true" spellcheck="false">
+<div><span class="text-[#569cd6]">/**</span></div>
+<div><span class="text-[#569cd6]"> * @param {number[]} nums</span></div>
+<div><span class="text-[#569cd6]"> * @return {number[][]}</span></div>
+<div><span class="text-[#569cd6]"> */</span></div>
+<div><span class="text-[#569cd6]">var</span> threeSum = <span class="text-[#569cd6]">function</span>(nums) {</div>
+<div> <span class="text-[#6a9955]">// Write your code here</span></div>
+<div> <span class="text-[#569cd6]">const</span> result = [];</div>
+<div> </div>
+<div> <span class="text-[#569cd6]">if</span> (nums.length &lt; <span class="text-[#b5cea8]">3</span>) <span class="text-[#569cd6]">return</span> result;</div>
+<div> </div>
+<div>    nums.sort((a, b) =&gt; a - b);</div>
+<div> </div>
+<div> <span class="text-[#569cd6]">for</span> (<span class="text-[#569cd6]">let</span> i = <span class="text-[#b5cea8]">0</span>; i &lt; nums.length - <span class="text-[#b5cea8]">2</span>; i++) {</div>
+<div> <span class="text-[#569cd6]">if</span> (nums[i] &gt; <span class="text-[#b5cea8]">0</span>) <span class="text-[#569cd6]">break</span>;</div>
+<div> <span class="text-[#569cd6]">if</span> (i &gt; <span class="text-[#b5cea8]">0</span> &amp;&amp; nums[i] === nums[i - <span class="text-[#b5cea8]">1</span>]) <span class="text-[#569cd6]">continue</span>;</div>
+<div> </div>
+<div> <span class="text-[#569cd6]">let</span> left = i + <span class="text-[#b5cea8]">1</span>;</div>
+<div> <span class="text-[#569cd6]">let</span> right = nums.length - <span class="text-[#b5cea8]">1</span>;</div>
+<div> </div>
+<div> <span class="text-[#569cd6]">while</span> (left &lt; right) {</div>
+<div> <span class="text-[#569cd6]">const</span> sum = nums[i] + nums[left] + nums[right];</div>
+<div> <span class="text-[#569cd6]">if</span> (sum === <span class="text-[#b5cea8]">0</span>) {</div>
+<div>                result.push([nums[i], nums[left], nums[right]]);</div>
+<div> <span class="text-[#569cd6]">while</span> (left &lt; right &amp;&amp; nums[left] === nums[left + <span class="text-[#b5cea8]">1</span>]) left++;</div>
+<div> <span class="text-[#569cd6]">while</span> (left &lt; right &amp;&amp; nums[right] === nums[right - <span class="text-[#b5cea8]">1</span>]) right--;</div>
+<div>                left++;</div>
+<div>                right--;</div>
+<div>            } <span class="text-[#569cd6]">else</span> <span class="text-[#569cd6]">if</span> (sum &lt; <span class="text-[#b5cea8]">0</span>) {</div>
+<div>                left++;</div>
+<div>            } <span class="text-[#569cd6]">else</span> {</div>
+<div>                right--;</div>
+<div>            }</div>
+<div>        }</div>
+<div>    }</div>
+<div> </div>
+<div> <span class="text-[#569cd6]">return</span> result;</div>
+<div>};</div>
+</div>
+<!-- Bottom Console -->
+<div class="h-[180px] shrink-0 border-t border-outline-variant bg-surface-container flex flex-col">
+<div class="h-[36px] border-b border-outline-variant flex items-center px-4 gap-4 text-sm font-headline-md">
+<div class="text-on-surface cursor-pointer border-b-2 border-primary h-full flex items-center">测试用例</div>
+<div class="text-on-surface-variant hover:text-on-surface cursor-pointer h-full flex items-center">执行结果</div>
+</div>
+<div class="flex-1 p-4 overflow-y-auto font-code-md text-code-md bg-surface-container-lowest">
+<div class="flex items-center gap-2 text-success font-bold mb-2">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        ✓ 通过 3/3 测试用例
+                    </div>
+<div class="text-on-surface-variant mt-4 text-sm">
+<div class="mb-1 text-on-surface">Input:</div>
+<div class="bg-surface-variant p-2 rounded mb-3">nums = [-1,0,1,2,-1,-4]</div>
+<div class="mb-1 text-on-surface">Output:</div>
+<div class="bg-surface-variant p-2 rounded">[[-1,-1,2],[-1,0,1]]</div>
+</div>
+</div>
+</div>
+<!-- Navigation Bar (Fixed Bottom of Right Pane) -->
+<div class="h-[56px] shrink-0 border-t border-outline-variant bg-surface-bright flex items-center justify-between px-gutter">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    上一题
+                </button>
+<div class="text-on-surface-variant font-label-caps text-label-caps">
+                    进度: 3 / 156
+                </div>
+<button class="text-primary hover:text-primary-container transition-colors flex items-center gap-1 font-body-sm text-body-sm font-bold">
+                    下一题
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</section>
+</main>
+</body></html>

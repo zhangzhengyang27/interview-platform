@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>面经笔记管理 - DevLeap IDE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#484a46",
+                      "on-surface-variant": "#e5beb2",
+                      "on-surface": "#fadcd3",
+                      "surface": "#1e100b",
+                      "primary-container": "#ff5712",
+                      "on-secondary-fixed-variant": "#464744",
+                      "tertiary-container": "#3491ff",
+                      "surface-tint": "#ffb59d",
+                      "surface-container-high": "#372620",
+                      "on-secondary-container": "#b8b9b4",
+                      "background": "#1e100b",
+                      "surface-dim": "#1e100b",
+                      "secondary": "#c6c7c2",
+                      "on-error-container": "#ffdad6",
+                      "outline-variant": "#5c4038",
+                      "on-tertiary": "#003061",
+                      "secondary-fixed": "#e3e3de",
+                      "inverse-on-surface": "#3e2c26",
+                      "primary-fixed-dim": "#ffb59d",
+                      "on-primary-container": "#511400",
+                      "on-primary": "#5d1800",
+                      "secondary-fixed-dim": "#c6c7c2",
+                      "inverse-surface": "#fadcd3",
+                      "primary-fixed": "#ffdbd0",
+                      "primary": "#ffb59d",
+                      "tertiary-fixed-dim": "#a8c8ff",
+                      "on-primary-fixed": "#390b00",
+                      "inverse-primary": "#ac3400",
+                      "on-background": "#fadcd3",
+                      "surface-container": "#2c1c16",
+                      "surface-bright": "#48352f",
+                      "on-primary-fixed-variant": "#832600",
+                      "error-container": "#93000a",
+                      "tertiary-fixed": "#d5e3ff",
+                      "surface-container-lowest": "#180b06",
+                      "outline": "#ac897e",
+                      "on-tertiary-fixed-variant": "#004689",
+                      "surface-container-highest": "#43302a",
+                      "on-secondary": "#2f312e",
+                      "on-tertiary-container": "#002955",
+                      "surface-container-low": "#281813",
+                      "error": "#ffb4ab",
+                      "on-secondary-fixed": "#1a1c19",
+                      "on-tertiary-fixed": "#001b3c",
+                      "on-error": "#690005",
+                      "surface-variant": "#43302a",
+                      "tertiary": "#a8c8ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "margin-desktop": "24px",
+                      "nav-height": "56px",
+                      "margin-mobile": "16px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "body-sm": ["Inter"],
+                      "display-lg-mobile": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "label-caps": ["JetBrains Mono"],
+                      "code-md": ["JetBrains Mono"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "code-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { background-color: #0e0e0c; color: #fadcd3; }
+        .bg-canvas { background-color: #0e0e0c; }
+        .bg-surface-raised { background-color: #1c1c19; }
+        .text-accent { color: #f54e00; }
+        .bg-accent { background-color: #f54e00; }
+        .border-accent { border-color: #f54e00; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+        
+        /* Custom Scrollbar for IDE feel */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #484a46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b8b9b4; }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col font-body-sm text-body-sm overflow-hidden bg-canvas">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center px-4 w-full h-14 bg-surface-container-low border-b border-outline-variant flex-shrink-0">
+<div class="flex items-center gap-6">
+<span class="text-body-lg font-bold text-primary tracking-tighter">DevLeap IDE</span>
+<div class="relative w-64 hidden md:block">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container-highest border-none text-on-surface text-body-sm py-1.5 pl-8 pr-3 rounded focus:ring-1 focus:ring-primary focus:outline-none placeholder-on-surface-variant/50" placeholder="Search files..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300"><span class="material-symbols-outlined">terminal</span></button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300"><span class="material-symbols-outlined">settings</span></button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300"><span class="material-symbols-outlined">help</span></button>
+<button class="bg-accent hover:opacity-90 text-on-primary font-bold px-4 py-1.5 rounded cursor-pointer transition-opacity duration-300 ml-2">Execute</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant ml-2">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnsu4D0EaYmfLCC8YIrkNEKKZr4PkYTpZNun04dplNwc45LN-TSnnVji02AXXqKEtvuIkdDuHkHq5ragbNESNZFVgrNXzpwjf-p0lmzgzfaVCcHRF-TRMMvgsQk9IVAFp8qEWKQQ9m8Mal6IFmdpVONdQohrrb_nG42k2F_m83NX0C-caWtsBoX1NqG76EO9e7qvu3ojwFwSD3dZpq6l-xmdS_ik-bvli9wVoTsd28WvbulAsL38CSfmR_Namf5f8LAaluAMsFIxvV"/>
+</div>
+</div>
+</header>
+<!-- Main Layout -->
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar (Shared Component, slimmed for Note context) -->
+<nav class="flex flex-col h-full border-r border-outline-variant py-4 w-16 bg-surface-container-lowest flex-shrink-0 items-center gap-4 z-10">
+<a class="w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#" title="Dashboard">
+<span class="material-symbols-outlined">dashboard</span>
+</a>
+<a class="w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#" title="Problems">
+<span class="material-symbols-outlined">database</span>
+</a>
+<a class="w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#" title="Practice">
+<span class="material-symbols-outlined">code</span>
+</a>
+<!-- Active State -->
+<a class="w-10 h-10 rounded flex items-center justify-center bg-secondary-container text-on-secondary-container border-l-2 border-primary" href="#" title="Notes">
+<span class="material-symbols-outlined">description</span>
+</a>
+<div class="mt-auto flex flex-col gap-4 mb-4">
+<a class="w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#" title="Terminal">
+<span class="material-symbols-outlined">terminal</span>
+</a>
+</div>
+</nav>
+<!-- Left Pane: Notes List (260px) -->
+<aside class="w-[260px] bg-surface-raised border-r border-outline-variant flex flex-col flex-shrink-0 h-full">
+<!-- Header & Action -->
+<div class="p-4 border-b border-outline-variant">
+<div class="flex justify-between items-center mb-4">
+<h1 class="font-headline-md text-headline-md text-on-surface m-0">面经笔记</h1>
+<span class="text-on-surface-variant text-xs bg-surface-variant px-2 py-0.5 rounded">42</span>
+</div>
+<button class="w-full bg-surface-container-highest hover:bg-surface-container-high text-on-surface border border-outline-variant rounded py-1.5 flex justify-center items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>新增笔记</span>
+</button>
+</div>
+<!-- Search -->
+<div class="px-3 py-2 border-b border-outline-variant">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface text-[12px] py-1 pl-7 pr-2 rounded focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all" placeholder="过滤笔记..." type="text"/>
+</div>
+</div>
+<!-- List Content -->
+<div class="flex-1 overflow-y-auto p-2 space-y-4">
+<!-- All Notes Link -->
+<div class="flex items-center gap-2 px-2 py-1.5 rounded text-on-surface-variant hover:bg-surface-variant cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[16px]">folder_copy</span>
+<span class="text-[13px] font-medium">全部笔记</span>
+</div>
+<!-- Group 1 -->
+<div>
+<div class="flex items-center gap-1 text-on-surface-variant text-[11px] uppercase font-bold px-2 mb-1 group cursor-pointer">
+<span class="material-symbols-outlined text-[14px] transition-transform group-hover:text-on-surface">arrow_drop_down</span>
+<span>字节跳动 (12)</span>
+</div>
+<div class="space-y-0.5">
+<div class="px-3 py-1.5 rounded hover:bg-surface-variant cursor-pointer group flex flex-col gap-1 transition-colors">
+<span class="text-on-surface text-[13px] truncate">前端一面 - 基础知识考查</span>
+<span class="text-on-surface-variant text-[10px]">2023-10-24</span>
+</div>
+<!-- Active Item -->
+<div class="px-3 py-1.5 rounded bg-surface-variant cursor-pointer group flex flex-col gap-1 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-accent"></div>
+<span class="text-accent text-[13px] font-medium truncate pl-1">前端二面 - 算法与系统设计</span>
+<span class="text-on-surface-variant text-[10px] pl-1">2023-10-28</span>
+</div>
+</div>
+</div>
+<!-- Group 2 -->
+<div>
+<div class="flex items-center gap-1 text-on-surface-variant text-[11px] uppercase font-bold px-2 mb-1 group cursor-pointer">
+<span class="material-symbols-outlined text-[14px] transition-transform group-hover:text-on-surface">arrow_right</span>
+<span>阿里巴巴 (8)</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Pane: Main Editor/Preview Canvas -->
+<main class="flex-1 flex flex-col bg-canvas h-full relative">
+<!-- Editor Toolbar -->
+<div class="h-12 border-b border-outline-variant flex justify-between items-center px-4 bg-surface-container-lowest">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">description</span>
+<input class="bg-transparent border-none text-on-surface font-headline-md text-[16px] focus:ring-0 p-0 min-w-[300px]" type="text" value="前端二面 - 算法与系统设计"/>
+<span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded text-[10px] uppercase border border-outline-variant">Unsaved</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors" title="Toggle Star">
+<span class="material-symbols-outlined text-[18px]">star</span>
+</button>
+<!-- Toggle Switch (Preview/Edit) -->
+<div class="flex bg-surface-container-highest rounded p-0.5 border border-outline-variant mx-2">
+<button class="px-3 py-1 rounded-sm bg-surface-variant text-on-surface text-[12px] font-medium shadow-sm">Split</button>
+<button class="px-3 py-1 rounded-sm text-on-surface-variant hover:text-on-surface text-[12px] transition-colors">Preview</button>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded text-on-surface-variant hover:bg-error-container hover:text-on-error transition-colors" title="Delete">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Content Area (Split Pane) -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left: Markdown Editor -->
+<div class="flex-1 flex flex-col border-r border-outline-variant">
+<div class="flex-1 p-4 overflow-y-auto">
+<textarea class="w-full h-full bg-transparent border-none text-secondary font-code-md text-code-md resize-none focus:ring-0 p-0 leading-relaxed outline-none" spellcheck="false"># 字节跳动 前端二面
+**日期**: 2023-10-28
+**部门**: 抖音电商
+
+## 1. 算法题：合并K个升序链表
+要求手撕，时间复杂度要求 $O(N \log K)$。
+思路：使用优先队列（小顶堆）来维护K个链表的头节点。</textarea></div></div></div></main></div></body></html>

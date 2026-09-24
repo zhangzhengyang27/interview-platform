@@ -1,0 +1,1139 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Design System: Interview Platform
+   Light theme: Cursor-inspired warm cream editorial style
+   Dark theme: Deep warm brown (original)
+   Toggle via data-theme attribute on <html>
+   ============================================================ */
+
+/* ─── Light Theme (default) ────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  /* Canvas & Background — warm cream */
+  --background: #f7f7f4;
+  --surface-dim: #efeee8;
+
+  /* Surface Layers (deepest to brightest) */
+  --surface-lowest: #efeee8;
+  --surface-low: #f2f1ec;
+  --surface-container: #f7f7f4;
+  --surface-high: #e6e5e0;
+  --surface-highest: #dddcd7;
+  --surface-bright: #ffffff;
+  --surface-variant: #e6e5e0;
+
+  /* Text — warm ink */
+  --on-surface: #26251e;
+  --on-surface-variant: #5a5852;
+  --secondary: #5a5852;
+  --on-background: #26251e;
+
+  /* Primary Brand — Cursor Orange */
+  --primary: #f54e00;
+  --on-primary: #ffffff;
+  --primary-container: #f54e00;
+  --on-primary-container: #ffffff;
+  --primary-fixed: #f54e00;
+  --primary-fixed-dim: #d04200;
+  --on-primary-fixed: #ffffff;
+  --on-primary-fixed-variant: #d04200;
+  --inverse-primary: #ff7b3a;
+
+  /* Tertiary (Blue) */
+  --tertiary: #3491ff;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #3491ff;
+  --on-tertiary-container: #ffffff;
+  --tertiary-fixed: #3491ff;
+  --tertiary-fixed-dim: #2a7ae0;
+
+  /* Semantic */
+  --error: #cf2d56;
+  --on-error: #ffffff;
+  --error-container: #fce4ec;
+  --on-error-container: #cf2d56;
+  /* Semantic — Success (Green) */
+  --success: #1f8a65;
+  --success-text: #1f8a65;
+  --success-container: rgba(31, 138, 101, 0.12);
+  --on-success-container: #1f8a65;
+
+  /* Semantic — Warning (Amber) */
+  --warning: #c77800;
+  --warning-text: #c77800;
+  --warning-container: rgba(199, 120, 0, 0.12);
+  --on-warning-container: #c77800;
+
+  /* Semantic — Info (Blue) */
+  --info: #2a7ae0;
+  --info-text: #2a7ae0;
+  --info-container: rgba(42, 122, 224, 0.12);
+  --on-info-container: #2a7ae0;
+
+  /* Heatmap intensity */
+  --heatmap-low: rgba(245, 78, 0, 0.25);
+  --heatmap-mid: rgba(245, 78, 0, 0.45);
+
+  --inverse-surface: #26251e;
+  --inverse-on-surface: #f7f7f4;
+
+  /* Borders — hairlines */
+  --outline: #cfcdc4;
+  --outline-variant: #e6e5e0;
+
+  /* Code Editor */
+  --code-bg: #fafaf7;
+  --code-text: #24292e;
+  --code-caret: #f54e00;
+  --code-gutter-bg: #f2f1ec;
+  --code-gutter-text: #8b8880;
+  --code-gutter-border: #e6e5e0;
+  --code-active-line: rgba(245, 78, 0, 0.04);
+  --code-selection: rgba(245, 78, 0, 0.2);
+
+  /* AI Accent */
+  --ai-accent: #9333ea;
+  --ai-accent-gradient: linear-gradient(135deg, #9333ea, #6366f1);
+  --ai-accent-glow: color-mix(in srgb, #9333ea 25%, transparent);
+  --ai-accent-bg: color-mix(in srgb, #9333ea 12%, transparent);
+
+  /* Medal Colors */
+  --medal-gold: #FFD700;
+  --medal-gold-gradient: linear-gradient(135deg, #FFD700, #FFA500);
+  --medal-gold-bg: color-mix(in srgb, #FFD700 8%, transparent);
+  --medal-silver: #C0C0C0;
+  --medal-silver-gradient: linear-gradient(135deg, #C0C0C0, #808080);
+  --medal-silver-bg: color-mix(in srgb, #C0C0C0 8%, transparent);
+  --medal-bronze: #CD7F32;
+  --medal-bronze-gradient: linear-gradient(135deg, #CD7F32, #8B4513);
+  --medal-bronze-bg: color-mix(in srgb, #CD7F32 8%, transparent);
+
+  /* Secondary Containers */
+  --secondary-container: #e6e5e0;
+  --on-secondary-container: #26251e;
+  --secondary-fixed: #e6e5e0;
+  --secondary-fixed-dim: #cfcdc4;
+  --on-secondary-fixed: #26251e;
+  --on-secondary-fixed-variant: #807d72;
+  --surface-tint: #f54e00;
+}
+
+/* ─── Dark Theme ───────────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Canvas & Background — deep warm brown */
+  --background: #1e100b;
+  --surface-dim: #1e100b;
+
+  /* Surface Layers */
+  --surface-lowest: #180b06;
+  --surface-low: #281813;
+  --surface-container: #2c1c16;
+  --surface-high: #372620;
+  --surface-highest: #43302a;
+  --surface-bright: #48352f;
+  --surface-variant: #43302a;
+
+  /* Text — warm cream */
+  --on-surface: #fadcd3;
+  --on-surface-variant: #e5beb2;
+  --secondary: #c6c7c2;
+  --on-background: #fadcd3;
+
+  /* Primary Brand — soft orange on dark */
+  --primary: #ffb59d;
+  --on-primary: #5d1800;
+  --primary-container: #ff5712;
+  --on-primary-container: #511400;
+  --primary-fixed: #ffdbd0;
+  --primary-fixed-dim: #ffb59d;
+  --on-primary-fixed: #390b00;
+  --on-primary-fixed-variant: #832600;
+  --inverse-primary: #ac3400;
+
+  /* Tertiary (Blue) */
+  --tertiary: #a8c8ff;
+  --on-tertiary: #003061;
+  --tertiary-container: #3491ff;
+  --on-tertiary-container: #002955;
+  --tertiary-fixed: #d5e3ff;
+  --tertiary-fixed-dim: #a8c8ff;
+
+  /* Semantic */
+  --error: #ffb4ab;
+  --on-error: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+  /* Semantic — Success (Green) */
+  --success: #4caf50;
+  --success-text: #4caf50;
+  --success-container: rgba(76, 175, 80, 0.15);
+  --on-success-container: #4caf50;
+
+  /* Semantic — Warning (Amber) */
+  --warning: #ffb74d;
+  --warning-text: #ffb74d;
+  --warning-container: rgba(255, 183, 77, 0.15);
+  --on-warning-container: #ffb74d;
+
+  /* Semantic — Info (Blue) */
+  --info: #a8c8ff;
+  --info-text: #a8c8ff;
+  --info-container: rgba(168, 200, 255, 0.15);
+  --on-info-container: #a8c8ff;
+
+  /* Heatmap intensity */
+  --heatmap-low: rgba(255, 181, 157, 0.3);
+  --heatmap-mid: rgba(255, 181, 157, 0.5);
+
+  --inverse-surface: #fadcd3;
+  --inverse-on-surface: #3e2c26;
+
+  /* Borders */
+  --outline: #ac897e;
+  --outline-variant: #5c4038;
+
+  /* Code Editor */
+  --code-bg: #1e1e1e;
+  --code-text: #d4d4d4;
+  --code-caret: #ffb59d;
+  --code-gutter-bg: #181818;
+  --code-gutter-text: #6e7681;
+  --code-gutter-border: #2e2e2b;
+  --code-active-line: rgba(255, 181, 157, 0.04);
+  --code-selection: rgba(255, 181, 157, 0.2);
+
+  /* Secondary Containers */
+  --secondary-container: #484a46;
+  --on-secondary-container: #b8b9b4;
+  --secondary-fixed: #e3e3de;
+  --secondary-fixed-dim: #c6c7c2;
+  --on-secondary-fixed: #1a1c19;
+  --on-secondary-fixed-variant: #464744;
+  --surface-tint: #ffb59d;
+}
+
+@theme inline {
+  /* Colors */
+  --color-background: var(--background);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-lowest: var(--surface-lowest);
+  --color-surface-low: var(--surface-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-high: var(--surface-high);
+  --color-surface-highest: var(--surface-highest);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-secondary: var(--secondary);
+  --color-on-background: var(--on-background);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+  --color-success: var(--success);
+  --color-success-text: var(--success-text);
+  --color-success-container: var(--success-container);
+  --color-on-success-container: var(--on-success-container);
+  --color-warning: var(--warning);
+  --color-warning-text: var(--warning-text);
+  --color-warning-container: var(--warning-container);
+  --color-on-warning-container: var(--on-warning-container);
+  --color-info: var(--info);
+  --color-info-text: var(--info-text);
+  --color-info-container: var(--info-container);
+  --color-on-info-container: var(--on-info-container);
+  --color-heatmap-low: var(--heatmap-low);
+  --color-heatmap-mid: var(--heatmap-mid);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-code-bg: var(--code-bg);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+
+  /* Fonts */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Spacing */
+  --spacing-nav-height: 56px;
+  --spacing-unit: 4px;
+  --spacing-gutter: 16px;
+  --spacing-margin-desktop: 24px;
+  --spacing-margin-mobile: 16px;
+}
+
+/* ============================================================
+   Base Styles
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--on-surface);
+  font-family: "Inter", system-ui, sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Selection */
+::selection {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-low);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-variant);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--outline-variant);
+}
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Typography Utilities
+   ============================================================ */
+
+.font-display-lg {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+}
+
+.font-headline-md {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.font-body-lg {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.font-body-sm {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.font-code-md {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.font-label-caps {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   Code Highlighting (highlight.js)
+   ============================================================ */
+
+.hljs {
+  background: var(--code-bg) !important;
+  color: var(--on-surface);
+  padding: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--outline-variant);
+  overflow-x: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Light mode: override dark-theme syntax colors with darker, more legible ones */
+/* Using body:not([data-theme="dark"]) for higher specificity than tokyo-night-dark.css */
+body:not([data-theme="dark"]) .hljs {
+  color: #1a1a2e !important;
+}
+
+body:not([data-theme="dark"]) .hljs-keyword {
+  color: #6c2eb9 !important; /* deep purple */
+}
+
+body:not([data-theme="dark"]) .hljs-string {
+  color: #28a745 !important; /* green */
+}
+
+body:not([data-theme="dark"]) .hljs-comment,
+body:not([data-theme="dark"]) .hljs-quote {
+  color: #6c757d !important; /* muted gray */
+}
+
+body:not([data-theme="dark"]) .hljs-number,
+body:not([data-theme="dark"]) .hljs-literal,
+body:not([data-theme="dark"]) .hljs-boolean {
+  color: #c52e00 !important; /* deep red-orange */
+}
+
+body:not([data-theme="dark"]) .hljs-function,
+body:not([data-theme="dark"]) .hljs-title,
+body:not([data-theme="dark"]) .hljs-title.function_ {
+  color: #1e6bb8 !important; /* deep blue */
+}
+
+body:not([data-theme="dark"]) .hljs-class,
+body:not([data-theme="dark"]) .hljs-type,
+body:not([data-theme="dark"]) .hljs-title.class_ {
+  color: #e07c24 !important; /* warm orange */
+}
+
+body:not([data-theme="dark"]) .hljs-params {
+  color: #1a1a2e !important;
+}
+
+body:not([data-theme="dark"]) .hljs-tag {
+  color: #6c2eb9 !important;
+}
+
+body:not([data-theme="dark"]) .hljs-attr {
+  color: #1e6bb8 !important;
+}
+
+body:not([data-theme="dark"]) .hljs-built_in,
+body:not([data-theme="dark"]) .hljs-meta {
+  color: #c52e00 !important;
+}
+
+body:not([data-theme="dark"]) .hljs-variable,
+body:not([data-theme="dark"]) .hljs-template-variable {
+  color: #1a1a2e !important;
+}
+
+body:not([data-theme="dark"]) .hljs-punctuation,
+body:not([data-theme="dark"]) .hljs-operator {
+  color: #495057 !important;
+}
+
+/* Immersive Mode */
+body.immersive-mode nav {
+  display: none !important;
+}
+body.immersive-mode main {
+  padding-top: 0 !important;
+}
+
+/* ============================================================
+   Theme transition for cards and surfaces
+   ============================================================ */
+html {
+  transition: background-color 0.3s ease;
+}
+
+nav, main > div, section, aside, header, footer, .card, [class*="surface"] {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Theme icon animation */
+@keyframes theme-icon-rotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-theme-icon {
+  animation: theme-icon-rotate 0.4s ease-in-out;
+}
+
+/* ============================================================
+   View Transition Animations (页面切换动画)
+   ============================================================ */
+
+/* 页面进入 - 淡入 + 轻微上移 */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 页面退出 - 淡出 + 上移 */
+@keyframes page-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* ViewTransition CSS 绑定 */
+::view-transition-group(.page-transition-root) {
+  animation-timing-function: ease-out;
+}
+
+/* 列表项进入 - 从下方滑入 */
+@keyframes item-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 内容渐显 */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 进度条增长动画 */
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+/* 减少动画（可访问性） */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+  }
+  .animate-theme-icon {
+    animation: none !important;
+  }
+  html {
+    transition: none !important;
+  }
+  nav, main > div, section, aside, header, footer, .card, [class*="surface"] {
+    transition: none !important;
+  }
+}
+
+/* ============================================================
+   Mobile-First Responsive Base
+   ============================================================ */
+
+/* 安全区域适配（刘海屏/底部指示器） */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* 触摸优化：取消 300ms 点击延迟 */
+a, button, [role="button"], input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* 防止 iOS 自动缩放输入框 */
+input, textarea, select {
+  font-size: 16px;
+}
+
+/* 移动端滚动容器统一 */
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Mermaid 流程图：窄屏可横向滚动，避免撑破布局 */
+.mermaid-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.mermaid-container svg {
+  max-width: none;
+}
+
+/* 仅在支持 hover 的设备上启用 hover 特效（触屏不触发） */
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+  .hover-glow:hover {
+    box-shadow: 0 0 10px color-mix(in srgb, var(--primary) 15%, transparent);
+  }
+}
+
+/* PWA 离线状态指示 */
+.offline-indicator {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  background: var(--warning, #c77800);
+  color: var(--on-surface);
+  text-align: center;
+  padding: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 40;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+.offline-indicator.visible {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   Accessibility (A11y) Improvements
+   ============================================================ */
+
+/* Skip Navigation - 键盘用户快速跳转到主要内容 */
+.skip-nav {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--primary);
+  color: white;
+  padding: 8px 16px;
+  z-index: 9999;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  transition: top 0.2s ease;
+}
+.skip-nav:focus {
+  top: 0;
+}
+
+/* Focus Visible - 为键盘焦点提供清晰的视觉提示（搜索弹窗元素除外） */
+*:focus-visible:not([data-no-focus-outline]):not([data-no-focus-outline] *):not([data-no-focus-outline] *:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+[data-no-focus-outline]:focus-visible,
+[data-no-focus-outline] *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Reduced Motion - 尊重用户的动画偏好设置 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Screen Reader Only - 视觉隐藏但屏幕阅读器可读 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================================
+   Mobile Optimization Global Styles (Task 8)
+   ============================================================ */
+
+/* ─── 统一响应式断点约定 ───────────────────────────────────────
+   与 Tailwind v4 默认断点保持一致，全站 JS/CSS 共用：
+     mobile  : < 768px   （手机，单栏 + 抽屉/底部 Tab）
+     tablet  : 768–1023px（平板，部分双栏）
+     desktop : >= 1024px （桌面，多栏）
+   语义化断点请优先使用 src/hooks/useBreakpoint.ts（useIsMobile 等），
+   避免在各页面重复 matchMedia 或硬编码 max-width。
+   ──────────────────────────────────────────────────────────── */
+
+/* 全局触控优化：消除点击延迟、统一高亮处理 */
+* {
+  touch-action: manipulation;
+}
+
+/* 触摸设备优化：确保可点击元素有足够大的触摸目标（最小 44px） */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:not(.icon-only):not([data-skip-touch-min-height]),
+  a:not(.icon-only):not([data-skip-touch-min-height]),
+  [role="button"]:not(.icon-only):not([data-skip-touch-min-height]) {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 小元素例外：icon-only buttons, badges 等 */
+  button.icon-only,
+  .badge,
+  [data-skip-touch-min-height] {
+    min-height: auto;
+  }
+}
+
+/* 移动端滚动条美化 */
+.mobile-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.mobile-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mobile-scroll::-webkit-scrollbar-thumb {
+  background: var(--surface-highest);
+  border-radius: 4px;
+}
+
+/* 文字选择禁用（UI 元素） */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 移动端输入框字体大小防止自动缩放（iOS）
+   覆盖断点：mobile (< 768px) */
+@media screen and (max-width: 767px) {
+  input,
+  textarea,
+  select,
+  [contenteditable] {
+    font-size: 16px !important;
+  }
+}
+
+/* 响应式容器内边距调整（mobile < 768px，原 640px 收紧到统一断点） */
+@media screen and (max-width: 767px) {
+  .mobile-padding {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  nav,
+  .no-print,
+  footer {
+    display: none !important;
+  }
+  main {
+    padding-top: 0 !important;
+  }
+}
+
+/* ============================================================
+   Enhanced Card Shadow System
+   ============================================================ */
+
+.card {
+  box-shadow:
+    0 1px 3px color-mix(in srgb, var(--on-surface) 6%, transparent),
+    0 1px 2px color-mix(in srgb, var(--on-surface) 4%, transparent);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+[data-theme="dark"] .card {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 0 0 1px color-mix(in srgb, var(--outline-variant) 40%, transparent);
+}
+
+.card-elevated {
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--on-surface) 8%, transparent),
+    0 2px 4px color-mix(in srgb, var(--on-surface) 5%, transparent);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+[data-theme="dark"] .card-elevated {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 0 0 1px color-mix(in srgb, var(--outline-variant) 30%, transparent),
+    0 0 20px color-mix(in srgb, var(--primary) 3%, transparent);
+}
+
+.card-glass {
+  background: color-mix(in srgb, var(--surface-bright) 70%, transparent);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow:
+    0 4px 16px color-mix(in srgb, var(--on-surface) 6%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--surface-bright) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 50%, transparent);
+}
+
+[data-theme="dark"] .card-glass {
+  background: color-mix(in srgb, var(--surface-container) 60%, transparent);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 color-mix(in srgb, var(--surface-highest) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 30%, transparent);
+}
+
+/* ============================================================
+   Enhanced Hover Effects
+   ============================================================ */
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 6px 16px color-mix(in srgb, var(--on-surface) 10%, transparent),
+      0 2px 4px color-mix(in srgb, var(--on-surface) 6%, transparent);
+  }
+  [data-theme="dark"] .hover-lift:hover {
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.4),
+      0 0 12px color-mix(in srgb, var(--primary) 5%, transparent);
+  }
+
+  .hover-scale {
+    transition: transform 0.25s ease;
+  }
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  .hover-glow {
+    transition: box-shadow 0.25s ease;
+  }
+  .hover-glow:hover {
+    box-shadow: 0 0 16px color-mix(in srgb, var(--primary) 20%, transparent);
+  }
+
+  .hover-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .hover-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--surface-bright) 40%, transparent),
+      transparent
+    );
+    transition: left 0.5s ease;
+    pointer-events: none;
+  }
+  .hover-shine:hover::after {
+    left: 120%;
+  }
+}
+
+/* ============================================================
+   Enhanced Scrollbar
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--surface-highest) 50%, transparent);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-highest);
+}
+
+/* ============================================================
+   Gradient Text Effects
+   ============================================================ */
+
+.gradient-text-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-fixed-dim));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-ai {
+  background: var(--ai-accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ============================================================
+   Micro Animation Utilities
+   ============================================================ */
+
+@keyframes animate-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes animate-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes animate-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes animate-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: animate-fade-in-up 0.4s ease-out both;
+}
+
+.animate-fade-in {
+  animation: animate-fade-in 0.3s ease-out both;
+}
+
+.animate-scale-in {
+  animation: animate-scale-in 0.35s ease-out both;
+}
+
+.animate-slide-in-right {
+  animation: animate-slide-in-right 0.4s ease-out both;
+}
+
+/* Stagger delay utilities for micro animations */
+.animate-delay-1 { animation-delay: 0.05s; }
+.animate-delay-2 { animation-delay: 0.1s; }
+.animate-delay-3 { animation-delay: 0.15s; }
+.animate-delay-4 { animation-delay: 0.2s; }
+.animate-delay-5 { animation-delay: 0.25s; }
+
+/* ============================================================
+   Navigation Glassmorphism
+   ============================================================ */
+
+nav {
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  background: color-mix(in srgb, var(--surface-bright) 80%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 50%, transparent);
+}
+
+[data-theme="dark"] nav {
+  background: color-mix(in srgb, var(--surface-container) 75%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 25%, transparent);
+}
+
+/* ============================================================
+   Gradient Divider
+   ============================================================ */
+
+.divider-gradient {
+  height: 1px;
+  border: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--outline-variant),
+    transparent
+  );
+  margin: 0;
+}
+
+/* ============================================================
+   Section Gap Utility
+   ============================================================ */
+
+.section-gap {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+/* 以下断点对齐统一规范（md:768 / lg:1024，详见顶部「统一响应式断点约定」） */
+@media screen and (min-width: 768px) {
+  .section-gap {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .section-gap {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}
+
+/* ============================================================
+   TopNav Enhancement Styles
+   ============================================================ */
+
+/* 新增题目按钮 hover 光晕扩散 */
+.btn-add-glow {
+  position: relative;
+  overflow: visible;
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
+}
+.btn-add-glow:hover {
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--primary) 15%, transparent),
+    0 0 24px color-mix(in srgb, var(--primary) 25%, transparent),
+    0 0 48px color-mix(in srgb, var(--primary) 10%, transparent) !important;
+  filter: brightness(1.1);
+}
+
+/* 通知铃铛未读 badge 脉冲动画 */
+@keyframes badge-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--error) 60%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--error) 0%, transparent);
+  }
+}
+.badge-pulse {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+/* 汉堡菜单按钮 hover 旋转 */
+.hamburger-btn {
+  transition: transform 0.3s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.hamburger-btn:hover {
+  transform: rotate(90deg);
+}
+.hamburger-btn svg line,
+.hamburger-btn svg path {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* ============================================================
+   Difficulty Badge Pulse Animation
+   ============================================================ */
+
+@keyframes difficulty-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
+}
+
+.difficulty-pulse {
+  animation: difficulty-pulse 2.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   Reduced Motion — disable all new animations
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-slide-in-right {
+    animation: none !important;
+  }
+  .hover-shine::after {
+    display: none;
+  }
+  .difficulty-pulse {
+    animation: none !important;
+  }
+}

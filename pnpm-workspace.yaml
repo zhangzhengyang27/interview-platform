@@ -1,0 +1,6 @@
+# 单包工程：pnpm 视为工作区根。
+# - verifyDepsBeforeRun:false 避免 Docker 非 TTY 下 pnpm run/exec 校验失败
+# - dangerouslyAllowAllBuilds:true 避免构建脚本需人工批准（非 TTY 会卡住）
+packages: []
+verifyDepsBeforeRun: false
+dangerouslyAllowAllBuilds: true

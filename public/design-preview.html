@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>题目卡片设计稿 · 多方案对比</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* 模拟项目亮色主题 token */
+  --primary: #f54e00;
+  --on-primary: #ffffff;
+  --surface-low: #f2f1ec;
+  --surface-container: #f7f7f4;
+  --surface-high: #e6e5e0;
+  --surface-highest: #dddcd7;
+  --surface-bright: #ffffff;
+  --on-surface: #26251e;
+  --on-surface-variant: #5a5852;
+  --outline-variant: #e6e5e0;
+  --outline: #cfcdc4;
+
+  --easy-text: #2a7ae0;
+  --easy-bg: rgba(42, 122, 224, 0.12);
+  --easy-solid: #eaf1fc;
+  --medium-text: #c77800;
+  --medium-bg: rgba(199, 120, 0, 0.12);
+  --medium-solid: #fbf1de;
+  --hard-text: #cf2d56;
+  --hard-bg: #fce4ec;
+  --hard-solid: #f9dfe7;
+  --success-text: #1f8a65;
+  --code-bg: #fafaf7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: #f7f7f4;
+  color: var(--on-surface);
+  padding: 40px 24px 80px;
+}
+.wrap { max-width: 1280px; margin: 0 auto; }
+header.top { text-align: center; margin-bottom: 40px; }
+header.top h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+header.top p { color: var(--on-surface-variant); margin-top: 8px; font-size: 14px; }
+
+/* ===== 每个方案区段 ===== */
+.section { margin-bottom: 56px; }
+.section-head {
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--outline); padding-bottom: 12px; margin-bottom: 24px;
+}
+.section-head .badge {
+  background: var(--primary); color: var(--on-primary);
+  font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 6px;
+}
+.section-head .name { font-size: 20px; font-weight: 700; }
+.section-head .desc { color: var(--on-surface-variant); font-size: 13px; margin-left: 4px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.grid.tight { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+
+/* ===== 通用卡片元素样式 ===== */
+.diff { font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 8px; display: inline-flex; align-items: center; gap: 4px; }
+.tag { font-size: 11px; font-weight: 500; border-radius: 999px; padding: 2px 8px; display: inline-flex; align-items: center; }
+.id { font-family: monospace; font-size: 10px; color: var(--on-surface-variant); opacity: 0.7; }
+
+/* ==============================================================
+   方案 A — 白底极简 · 左色条 + 顶部标识
+   灵感：Linear / Notion 卡片，克制的层级
+   ============================================================== */
+.vA {
+  background: var(--surface-bright);
+  border: 1px solid var(--outline);
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow .25s, transform .25s, border-color .25s;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+.vA::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+.vA--easy { border-left: none; }
+.vA--easy::before { background: var(--easy-text); }
+.vA--medium::before { background: var(--medium-text); }
+.vA--hard::before { background: var(--hard-text); }
+.vA:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -8px rgba(38,37,30,.14); }
+.vA .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.vA .icon {
+  width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center;
+  background: var(--code-bg); border: 1px solid var(--outline);
+}
+.vA--easy .icon { color: var(--easy-text); background: var(--easy-solid); border-color: transparent; }
+.vA--medium .icon { color: var(--medium-text); background: var(--medium-solid); border-color: transparent; }
+.vA--hard .icon { color: var(--hard-text); background: var(--hard-solid); border-color: transparent; }
+.vA .diff--easy { color: var(--easy-text); background: var(--easy-solid); }
+.vA .diff--medium { color: var(--medium-text); background: var(--medium-solid); }
+.vA .diff--hard { color: var(--hard-text); background: var(--hard-solid); }
+.vA h4 { font-size: 15px; font-weight: 600; line-height: 1.45; margin-bottom: 14px; color: var(--on-surface); flex: 1; }
+.vA .foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--outline); padding-top: 10px; }
+.vA .tag { background: var(--code-bg); color: var(--on-surface-variant); border: 1px solid var(--outline); }
+
+/* ==============================================================
+   方案 B — 难度彩色顶栏 · 纵向渐变（改进当前版）
+   顶部彩色渐变条 + 白底内容，对比度经过优化
+   ============================================================== */
+.vB { border-radius: 16px; overflow: hidden; background: var(--surface-bright); border: 1px solid var(--outline); transition: box-shadow .25s, transform .25s; height: 100%; display: flex; flex-direction: column; }
+.vB:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -12px rgba(38,37,30,.16); }
+.vB .banner { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+.vB--easy .banner { background: linear-gradient(120deg, var(--easy-text), #1e62b8); }
+.vB--medium .banner { background: linear-gradient(120deg, var(--medium-text), #a55f00); }
+.vB--hard .banner { background: linear-gradient(120deg, var(--hard-text), #a52143); }
+.vB .banner .l { display: flex; align-items: center; gap: 8px; color: #fff; }
+.vB .banner .icon { width: 26px; height: 26px; border-radius: 7px; background: rgba(255,255,255,.22); display: grid; place-items: center; }
+.vB .banner .label { font-size: 12px; font-weight: 600; color: #fff; }
+.vB .master { color: #fff; width: 18px; height: 18px; }
+.vB .body { padding: 14px 16px; display: flex; flex-direction: column; flex: 1; }
+.vB h4 { font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--on-surface); margin-bottom: 14px; flex: 1; }
+.vB .foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--outline); padding-top: 10px; }
+.vB .tag--easy { color: var(--easy-text); background: var(--easy-solid); }
+.vB .tag--medium { color: var(--medium-text); background: var(--medium-solid); }
+.vB .tag--hard { color: var(--hard-text); background: var(--hard-solid); }
+
+/* ==============================================================
+   方案 C — 玻璃拟态 · 柔和层次
+   ============================================================== */
+.vC { border-radius: 18px; padding: 18px; position: relative; overflow: hidden; height: 100%; display: flex; flex-direction: column; backdrop-filter: blur(10px); transition: transform .25s, box-shadow .25s; border: 1px solid rgba(255,255,255,.6); }
+.vC--easy { background: linear-gradient(160deg, #eef5ff, #f7fbff); }
+.vC--medium { background: linear-gradient(160deg, #fdf4e0, #fdf9ee); }
+.vC--hard { background: linear-gradient(160deg, #fdeef2, #fef7f9); }
+.vC:hover { transform: translateY(-3px); box-shadow: 0 16px 36px -10px rgba(38,37,30,.18); }
+.vC .glow { position: absolute; top: -40px; right: -40px; width: 110px; height: 110px; border-radius: 50%; filter: blur(40px); opacity: .5; }
+.vC--easy .glow { background: var(--easy-text); }
+.vC--medium .glow { background: var(--medium-text); }
+.vC--hard .glow { background: var(--hard-text); }
+.vC .top { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.vC .icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; }
+.vC--easy .icon { background: linear-gradient(135deg, var(--easy-text), #1e62b8); }
+.vC--medium .icon { background: linear-gradient(135deg, var(--medium-text), #a55f00); }
+.vC--hard .icon { background: linear-gradient(135deg, var(--hard-text), #a52143); }
+.vC .diff--easy { color: var(--easy-text); background: rgba(42,122,224,.14); }
+.vC .diff--medium { color: var(--medium-text); background: rgba(199,120,0,.14); }
+.vC .diff--hard { color: var(--hard-text); background: rgba(207,45,86,.14); }
+.vC h4 { font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--on-surface); margin-bottom: 14px; flex: 1; }
+.vC .foot { display: flex; align-items: center; justify-content: space-between; }
+.vC .tag { background: rgba(255,255,255,.7); color: var(--on-surface-variant); border: 1px solid rgba(0,0,0,.05); }
+
+/* ==============================================================
+   方案 D — 横向信息流 · 大图标签
+   ============================================================== */
+.vD { background: var(--surface-bright); border-radius: 12px; border: 1px solid var(--outline); padding: 14px; height: 100%; display: flex; flex-direction: column; transition: box-shadow .25s, transform .25s; }
+.vD:hover { transform: translateY(-3px); box-shadow: 0 14px 32px -8px rgba(38,37,30,.15); }
+.vD .chiprow { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.vD .iconchip { width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; }
+.vD--easy .iconchip { background: var(--easy-solid); color: var(--easy-text); }
+.vD--medium .iconchip { background: var(--medium-solid); color: var(--medium-text); }
+.vD--hard .iconchip { background: var(--hard-solid); color: var(--hard-text); }
+.vD .diff--easy { color: var(--easy-text); background: var(--easy-solid); }
+.vD .diff--medium { color: var(--medium-text); background: var(--medium-solid); }
+.vD .diff--hard { color: var(--hard-text); background: var(--hard-solid); }
+.vD h4 { font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--on-surface); margin-bottom: 12px; flex: 1; }
+.vD .foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--outline); padding-top: 10px; }
+.vD .tag { background: var(--code-bg); color: var(--on-surface-variant); border: 1px solid var(--outline); }
+
+/* ==============================================================
+   方案 E — 深色高对比 · 霓虹发光
+   ============================================================== */
+.theme-dark-card { background: #2c1c16; border-color: #43302a; }
+.vE { border-radius: 16px; padding: 18px; position: relative; overflow: hidden; height: 100%; display: flex; flex-direction: column; transition: transform .25s, box-shadow .25s; border: 1px solid rgba(255,255,255,.08); }
+.vE--easy { background: linear-gradient(160deg, #233a52, #1e2f42); }
+.vE--medium { background: linear-gradient(160deg, #3a2f1a, #332a16); }
+.vE--hard { background: linear-gradient(160deg, #3c2028, #341d24); }
+.vE:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -12px rgba(0,0,0,.5); }
+.vE .top { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.vE .icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; box-shadow: 0 0 14px rgba(255,255,255,.15); }
+.vE--easy .icon { background: var(--easy-text); }
+.vE--medium .icon { background: var(--medium-text); }
+.vE--hard .icon { background: var(--hard-text); }
+.vE .diff--easy { color: #7db1ff; background: rgba(42,122,224,.22); }
+.vE .diff--medium { color: #ffc26b; background: rgba(199,120,0,.22); }
+.vE .diff--hard { color: #ff8aa4; background: rgba(207,45,86,.22); }
+.vE h4 { font-size: 15px; font-weight: 600; line-height: 1.45; color: #fadcd3; margin-bottom: 14px; flex: 1; }
+.vE .foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,.1); padding-top: 10px; }
+.vE .tag { background: rgba(255,255,255,.08); color: #e5beb2; border: 1px solid rgba(255,255,255,.08); }
+.vE .id { color: #e5beb2; }
+.vE .master { width: 18px; height: 18px; }
+.vE--easy .master { color: #4caf50; }
+.vE--medium .master { color: #4caf50; }
+.vE--hard .master { color: #4caf50; }
+
+/* ==============================================================
+   方案 F — 大号难度标签 · 居中模块化
+   ============================================================== */
+.vF { background: var(--surface-bright); border-radius: 16px; border: 1px solid var(--outline); padding: 16px; text-align: center; position: relative; overflow: hidden; height: 100%; display: flex; flex-direction: column; transition: box-shadow .25s, transform .25s; }
+.vF::after { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+.vF--easy::after { background: linear-gradient(90deg, var(--easy-text), #1e62b8); }
+.vF--medium::after { background: linear-gradient(90deg, var(--medium-text), #a55f00); }
+.vF--hard::after { background: linear-gradient(90deg, var(--hard-text), #a52143); }
+.vF:hover { transform: translateY(-3px); box-shadow: 0 16px 36px -10px rgba(38,37,30,.16); }
+.vF .icondisk { width: 52px; height: 52px; border-radius: 50%; margin: 10px auto 12px; display: grid; place-items: center; color: #fff; }
+.vF--easy .icondisk { background: linear-gradient(135deg, var(--easy-text), #1e62b8); box-shadow: 0 8px 18px -4px rgba(42,122,224,.5); }
+.vF--medium .icondisk { background: linear-gradient(135deg, var(--medium-text), #a55f00); box-shadow: 0 8px 18px -4px rgba(199,120,0,.5); }
+.vF--hard .icondisk { background: linear-gradient(135deg, var(--hard-text), #a52143); box-shadow: 0 8px 18px -4px rgba(207,45,86,.5); }
+.vF .diff--easy { color: var(--easy-text); background: var(--easy-solid); }
+.vF .diff--medium { color: var(--medium-text); background: var(--medium-solid); }
+.vF .diff--hard { color: var(--hard-text); background: var(--hard-solid); }
+.vF h4 { font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--on-surface); margin: 12px 0 14px; flex: 1; }
+.vF .foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--outline); padding-top: 10px; }
+.vF .tag { background: var(--code-bg); color: var(--on-surface-variant); border: 1px solid var(--outline); }
+
+/* SVG icons */
+.ico { width: 16px; height: 16px; }
+.ico-lg { width: 20px; height: 20px; }
+.ico-xl { width: 24px; height: 24px; }
+
+/* 返回按钮 */
+.back-fab {
+  position: fixed; bottom: 24px; right: 24px; z-index: 50;
+  background: var(--primary); color: #fff; border: none; border-radius: 12px;
+  padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 8px 24px -4px rgba(245,78,0,.5); transition: transform .2s;
+}
+.back-fab:hover { transform: translateY(-2px); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>题目卡片设计稿 · 多方案对比</h1>
+  <p>选择你最喜欢的一套方案，我会据此重构题库卡片 · 每种方案均含简单/中等/困难 与 代码题/问答题</p>
+</header>
+
+<!-- ====================== 方案 A ====================== -->
+<section class="section">
+  <div class="section-head">
+    <span class="badge">方案 A</span>
+    <span class="name">白底极简 · 左色条</span>
+    <span class="desc">Linear 风格，克制优雅，左侧竖条标记难度</span>
+  </div>
+  <div class="grid">
+    <a class="vA vA--easy">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--easy">简单</span>
+      </div>
+      <h4>实现 Promise 的并发控制，限制同时执行的异步任务数量</h4>
+      <div class="foot">
+        <span class="tag">异步编程</span>
+        <span class="id">#a1f2</span>
+      </div>
+    </a>
+    <a class="vA vA--easy">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+        <span class="diff diff--easy">简单 · 问答题</span>
+      </div>
+      <h4>什么是虚拟 DOM？它相比直接操作 DOM 有哪些优势</h4>
+      <div class="foot">
+        <span class="tag">前端</span>
+        <span class="id">#b3d8</span>
+      </div>
+    </a>
+    <a class="vA vA--medium">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--medium">中等</span>
+      </div>
+      <h4>用栈实现一个最小栈，支持 push、pop、top 和 getMin 操作</h4>
+      <div class="foot">
+        <span class="tag">DataStructure</span>
+        <span class="id">#c9e0</span>
+      </div>
+    </a>
+    <a class="vA vA--medium">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+        <span class="diff diff--medium">中等</span>
+      </div>
+      <h4>解释一下 Redis 持久化机制 RDB 与 AOF 的区别</h4>
+      <div class="foot">
+        <span class="tag">Redis</span>
+        <span class="id">#d1a3</span>
+      </div>
+    </a>
+    <a class="vA vA--hard">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--hard">困难</span>
+      </div>
+      <h4>设计一个支持海量数据的高可用短 URL 生成服务</h4>
+      <div class="foot">
+        <span class="tag">SystemDesign</span>
+        <span class="id">#e4b7</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ====================== 方案 B ====================== -->
+<section class="section">
+  <div class="section-head">
+    <span class="badge">方案 B</span>
+    <span class="name">彩色渐变顶栏</span>
+    <span class="desc">当前版改进 · 顶部渐变横幅 + 白字，对比度优化</span>
+  </div>
+  <div class="grid">
+    <a class="vB vB--easy">
+      <div class="banner">
+        <span class="l">
+          <span class="icon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+          <span class="label">简单 · 代码题</span>
+        </span>
+        <svg class="master" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div class="body">
+        <h4>实现 Promise 的并发控制，限制同时执行的异步任务数量</h4>
+        <div class="foot">
+          <span class="tag tag--easy">异步编程</span>
+          <span class="id">#a1f2</span>
+        </div>
+      </div>
+    </a>
+    <a class="vB vB--easy">
+      <div class="banner">
+        <span class="l">
+          <span class="icon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+          <span class="label">简单 · 问答题</span>
+        </span>
+      </div>
+      <div class="body">
+        <h4>什么是虚拟 DOM？它相比直接操作 DOM 有哪些优势</h4>
+        <div class="foot">
+          <span class="tag tag--easy">前端</span>
+          <span class="id">#b3d8</span>
+        </div>
+      </div>
+    </a>
+    <a class="vB vB--medium">
+      <div class="banner">
+        <span class="l">
+          <span class="icon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+          <span class="label">中等 · 代码题</span>
+        </span>
+        <svg class="master" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div class="body">
+        <h4>用栈实现一个最小栈，支持 push、pop、top 和 getMin 操作</h4>
+        <div class="foot">
+          <span class="tag tag--medium">DataStructure</span>
+          <span class="id">#c9e0</span>
+        </div>
+      </div>
+    </a>
+    <a class="vB vB--medium">
+      <div class="banner">
+        <span class="l">
+          <span class="icon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+          <span class="label">中等 · 问答题</span>
+        </span>
+      </div>
+      <div class="body">
+        <h4>解释一下 Redis 持久化机制 RDB 与 AOF 的区别</h4>
+        <div class="foot">
+          <span class="tag tag--medium">Redis</span>
+          <span class="id">#d1a3</span>
+        </div>
+      </div>
+    </a>
+    <a class="vB vB--hard">
+      <div class="banner">
+        <span class="l">
+          <span class="icon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+          <span class="label">困难 · 代码题</span>
+        </span>
+      </div>
+      <div class="body">
+        <h4>设计一个支持海量数据的高可用短 URL 生成服务</h4>
+        <div class="foot">
+          <span class="tag tag--hard">SystemDesign</span>
+          <span class="id">#e4b7</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ====================== 方案 C ====================== -->
+<section class="section">
+  <div class="section-head">
+    <span class="badge">方案 C</span>
+    <span class="name">柔和玻璃拟态</span>
+    <span class="desc">整卡难度色柔和渐变 + 右上光晕，细腻高级</span>
+  </div>
+  <div class="grid">
+    <a class="vC vC--easy">
+      <span class="glow"></span>
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--easy">简单</span>
+      </div>
+      <h4>实现 Promise 的并发控制，限制同时执行的异步任务数量</h4>
+      <div class="foot">
+        <span class="tag">异步编程</span>
+        <span class="id">#a1f2</span>
+      </div>
+    </a>
+    <a class="vC vC--easy">
+      <span class="glow"></span>
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+        <span class="diff diff--easy">简单 · 问答题</span>
+      </div>
+      <h4>什么是虚拟 DOM？它相比直接操作 DOM 有哪些优势</h4>
+      <div class="foot">
+        <span class="tag">前端</span>
+        <span class="id">#b3d8</span>
+      </div>
+    </a>
+    <a class="vC vC--medium">
+      <span class="glow"></span>
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--medium">中等</span>
+      </div>
+      <h4>用栈实现一个最小栈，支持 push、pop、top 和 getMin 操作</h4>
+      <div class="foot">
+        <span class="tag">DataStructure</span>
+        <span class="id">#c9e0</span>
+      </div>
+    </a>
+    <a class="vC vC--medium">
+      <span class="glow"></span>
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+        <span class="diff diff--medium">中等</span>
+      </div>
+      <h4>解释一下 Redis 持久化机制 RDB 与 AOF 的区别</h4>
+      <div class="foot">
+        <span class="tag">Redis</span>
+        <span class="id">#d1a3</span>
+      </div>
+    </a>
+    <a class="vC vC--hard">
+      <span class="glow"></span>
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--hard">困难</span>
+      </div>
+      <h4>设计一个支持海量数据的高可用短 URL 生成服务</h4>
+      <div class="foot">
+        <span class="tag">SystemDesign</span>
+        <span class="id">#e4b7</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ====================== 方案 D ====================== -->
+<section class="section">
+  <div class="section-head">
+    <span class="badge">方案 D</span>
+    <span class="name">横向信息流 · 顶部徽章</span>
+    <span class="desc">标签置顶，紧凑整齐，信息密度高</span>
+  </div>
+  <div class="grid tight">
+    <a class="vD vD--easy">
+      <div class="chiprow">
+        <span class="iconchip"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--easy">简单</span>
+        <span class="tag">异步编程</span>
+      </div>
+      <h4>实现 Promise 的并发控制，限制同时执行的异步任务数量</h4>
+      <div class="foot">
+        <span class="tag" style="visibility:hidden">·</span>
+        <span class="id">#a1f2</span>
+      </div>
+    </a>
+    <a class="vD vD--easy">
+      <div class="chiprow">
+        <span class="iconchip"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+        <span class="diff diff--easy">简单</span>
+        <span class="tag">前端</span>
+      </div>
+      <h4>什么是虚拟 DOM？它相比直接操作 DOM 有哪些优势</h4>
+      <div class="foot">
+        <span class="tag" style="visibility:hidden">·</span>
+        <span class="id">#b3d8</span>
+      </div>
+    </a>
+    <a class="vD vD--medium">
+      <div class="chiprow">
+        <span class="iconchip"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--medium">中等</span>
+        <span class="tag">DataStructure</span>
+      </div>
+      <h4>用栈实现一个最小栈，支持 push、pop、top 和 getMin 操作</h4>
+      <div class="foot">
+        <span class="tag" style="visibility:hidden">·</span>
+        <span class="id">#c9e0</span>
+      </div>
+    </a>
+    <a class="vD vD--medium">
+      <div class="chiprow">
+        <span class="iconchip"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+        <span class="diff diff--medium">中等</span>
+        <span class="tag">Redis</span>
+      </div>
+      <h4>解释一下 Redis 持久化机制 RDB 与 AOF 的区别</h4>
+      <div class="foot">
+        <span class="tag" style="visibility:hidden">·</span>
+        <span class="id">#d1a3</span>
+      </div>
+    </a>
+    <a class="vD vD--hard">
+      <div class="chiprow">
+        <span class="iconchip"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--hard">困难</span>
+        <span class="tag">SystemDesign</span>
+      </div>
+      <h4>设计一个支持海量数据的高可用短 URL 生成服务</h4>
+      <div class="foot">
+        <span class="tag" style="visibility:hidden">·</span>
+        <span class="id">#e4b7</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ====================== 方案 E ====================== -->
+<section class="section">
+  <div class="section-head">
+    <span class="badge">方案 E</span>
+    <span class="name">深色高对比 · 霓虹发光</span>
+    <span class="desc">深底 + 难度色渐变，现代电竞感，适合暗色主题</span>
+  </div>
+  <div class="grid">
+    <a class="vE vE--easy">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--easy">简单 · 代码题</span>
+      </div>
+      <h4>实现 Promise 的并发控制，限制同时执行的异步任务数量</h4>
+      <div class="foot">
+        <span class="tag">异步编程</span>
+        <span class="id">#a1f2</span>
+      </div>
+    </a>
+    <a class="vE vE--easy">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+        <span class="diff diff--easy">简单 · 问答题</span>
+      </div>
+      <h4>什么是虚拟 DOM？它相比直接操作 DOM 有哪些优势</h4>
+      <div class="foot">
+        <span class="tag">前端</span>
+        <span class="id">#b3d8</span>
+      </div>
+    </a>
+    <a class="vE vE--medium">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--medium">中等 · 代码题</span>
+      </div>
+      <h4>用栈实现一个最小栈，支持 push、pop、top 和 getMin 操作</h4>
+      <div class="foot">
+        <span class="tag">DataStructure</span>
+        <span class="id">#c9e0</span>
+      </div>
+    </a>
+    <a class="vE vE--hard">
+      <div class="top">
+        <span class="icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+        <span class="diff diff--hard">困难 · 代码题</span>
+      </div>
+      <h4>设计一个支持海量数据的高可用短 URL 生成服务</h4>
+      <div class="foot">
+        <span class="tag">SystemDesign</span>
+        <span class="id">#e4b7</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ====================== 方案 F ====================== -->
+<section class="section">
+  <div class="section-head">
+    <span class="badge">方案 F</span>
+    <span class="name">居中模块化 · 大图标</span>
+    <span class="desc">居中圆盘图标 + 顶部渐变条，突出可识别性</span>
+  </div>
+  <div class="grid">
+    <a class="vF vF--easy">
+      <span class="icondisk"><svg class="ico-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+      <div class="chiprow" style="display:flex;justify-content:center;gap:6px"><span class="diff diff--easy">简单 · 代码题</span></div>
+      <h4>实现 Promise 的并发控制，限制同时执行的异步任务数量</h4>
+      <div class="foot">
+        <span class="tag">异步编程</span>
+        <span class="id">#a1f2</span>
+      </div>
+    </a>
+    <a class="vF vF--easy">
+      <span class="icondisk"><svg class="ico-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></span>
+      <div class="chiprow" style="display:flex;justify-content:center;gap:6px"><span class="diff diff--easy">简单 · 问答题</span></div>
+      <h4>什么是虚拟 DOM？它相比直接操作 DOM 有哪些优势</h4>
+      <div class="foot">
+        <span class="tag">前端</span>
+        <span class="id">#b3d8</span>
+      </div>
+    </a>
+    <a class="vF vF--medium">
+      <span class="icondisk"><svg class="ico-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+      <div class="chiprow" style="display:flex;justify-content:center;gap:6px"><span class="diff diff--medium">中等 · 代码题</span></div>
+      <h4>用栈实现一个最小栈，支持 push、pop、top 和 getMin 操作</h4>
+      <div class="foot">
+        <span class="tag">DataStructure</span>
+        <span class="id">#c9e0</span>
+      </div>
+    </a>
+    <a class="vF vF--hard">
+      <span class="icondisk"><svg class="ico-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+      <div class="chiprow" style="display:flex;justify-content:center;gap:6px"><span class="diff diff--hard">困难 · 代码题</span></div>
+      <h4>设计一个支持海量数据的高可用短 URL 生成服务</h4>
+      <div class="foot">
+        <span class="tag">SystemDesign</span>
+        <span class="id">#e4b7</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+</div>
+
+<a class="back-fab" href="/questions">← 返回题库页</a>
+
+</body>
+</html>

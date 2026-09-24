@@ -1,0 +1,688 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  password      String?
+  image         String?
+  emailVerified DateTime? @map("email_verified")
+  role          String    @default("user")
+  bio                 String?
+  emailNotifications  Boolean   @default(true) @map("email_notifications")
+  reminderEnabled     Boolean   @default(true) @map("reminder_enabled")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  practiceHistory PracticeHistory[]
+  comments        Comment[]
+  studyPlans      StudyPlan[]
+  notes           Note[]
+  mockInterviews  MockInterview[]
+  followers       Follow[] @relation("Following")
+  following       Follow[] @relation("Follower")
+  bookmarkFolders BookmarkFolder[]
+  reports         Report[]
+  shares          ShareLink[]
+  notifications   Notification[]
+  solutions      Solution[]
+  accounts        Account[]
+  sessions        Session[]
+  contestSubmissions ContestSubmission[]
+  questionEncounters QuestionEncounter[]
+  testPapers         TestPaper[]
+  testPaperSubmissions TestPaperSubmission[]
+  questionEdits      QuestionEdit[]
+
+  @@map("users")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Follower", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model BookmarkFolder {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  icon      String?
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  BookmarkItem[]
+
+  @@map("bookmark_folders")
+}
+
+model BookmarkItem {
+  id              String @id @default(uuid())
+  folderId        String @map("folder_id")
+  questionId      String @map("question_id")
+  addedAt         DateTime @default(now()) @map("added_at")
+  note            String?
+
+  folder   BookmarkFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  question Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([folderId, questionId])
+  @@map("bookmark_items")
+}
+
+model Report {
+  id          String   @id @default(uuid())
+  reporterId  String   @map("reporter_id")
+  target_type String   @map("target_type") // "question" | "comment" | "note"
+  targetId    String   @map("target_id")
+  reason      String   // "spam" | "inappropriate" | "copyright" | "other"
+  description String?
+  status      String   @default("pending") // "pending" | "resolved" | "dismissed"
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  reporter User @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+model ShareLink {
+  id          String   @id @default(uuid())
+  creatorId   String   @map("creator_id")
+  type        String   // "question" | "note" | "interview_result"
+  targetId    String   @map("target_id")
+  slug        String   @unique
+  views       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  expiresAt   DateTime? @map("expires_at")
+
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@map("share_links")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // "follow" | "comment_reply" | "mention" | "reminder" | "system"
+  title     String
+  body      String?
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  title         String
+  content       String
+  solution      String?
+  answer        Boolean? // 判断题标准答案（questionType=judge 时使用）：true=正确 / false=错误
+  codeTemplate  Json?
+  questionType  String   @default("qa")
+  difficulty    String
+  company       String?
+  jobRole       String?  @map("job_role") // "backend" | "frontend" | "fullstack" | "algorithm" | "devops" | "data" | "mobile" | "general"
+  mastery       String   @default("unsolved")
+  isBookmarked  Boolean  @default(false)
+  viewCount     Int      @default(0)
+  encounterCount Int @default(0) @map("encounter_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  tags          QuestionTag[]
+  practiceHistory PracticeHistory[]
+  comments      Comment[]
+  studyPlanItems StudyPlanItem[]
+  studyPlanProgress StudyPlanProgress[]
+  testCases       TestCase[]
+  solutions       Solution[]
+  bookmarkItems  BookmarkItem[]
+  contestProblems ContestProblem[]
+  learningPathItems LearningPathItem[]
+  encounters  QuestionEncounter[]
+  testPaperItems TestPaperItem[]
+  questionSetItems QuestionSetItem[]
+  questionEdits  QuestionEdit[]
+
+  @@index([jobRole])
+  @@map("questions")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  description String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  parentId    String?  @map("parent_id")
+
+  parent      Category? @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  questions   Question[]
+
+  @@index([parentId])
+  @@index([type])
+  @@map("categories")
+}
+
+model QuestionTag {
+  questionId String   @map("question_id")
+  tag        String
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([questionId, tag])
+  @@map("question_tags")
+}
+
+model TestCase {
+  id          String   @id @default(uuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  input       String
+  output      String
+  isHidden    Boolean  @default(false)
+  orderBy     Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([questionId])
+  @@map("test_cases")
+}
+
+model Note {
+  id           String   @id @default(uuid())
+  title        String
+  content      String   @default("")
+  company      String?
+  questionIds  String[] @map("question_ids")
+  isBookmarked Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  userId      String? @map("user_id")
+  user        User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("notes")
+}
+
+model PracticeHistory {
+  id              String   @id @default(uuid())
+  questionId      String   @map("question_id")
+  status          String
+  durationSeconds Int?     @map("duration_seconds")
+  attemptedAt     DateTime @default(now()) @map("attempted_at")
+
+  userId  String? @map("user_id")
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, attemptedAt])
+  @@index([questionId])
+  @@map("practice_history")
+}
+
+model Comment {
+  id         String   @id @default(uuid())
+  questionId String   @map("question_id")
+  content    String
+  author     String?
+  upvotes    Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  userId  String? @map("user_id")
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Solution {
+  id          String   @id @default(uuid())
+  content     String   @db.Text
+  language    String?
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  upvotes     Int      @default(0)
+  isFeatured  Boolean  @default(false) @map("is_featured")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([questionId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("solutions")
+}
+
+model Streak {
+  id           String   @id @default(uuid())
+  date         DateTime @unique
+  questionCount Int     @default(0) @map("question_count")
+  dailyGoal    Int      @default(5) @map("daily_goal")
+  goalMet      Boolean  @default(false) @map("goal_met")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("streaks")
+}
+
+model MockInterview {
+  id           String   @id @default(uuid())
+  direction    String
+  startedAt    DateTime @default(now()) @map("started_at")
+  endedAt      DateTime? @map("ended_at")
+  overallScore Int?     @map("overall_score")
+  summary      String?
+  status       String   @default("in-progress")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  turns  MockInterviewTurn[]
+
+  @@map("mock_interviews")
+}
+
+model MockInterviewTurn {
+  id              String   @id @default(uuid())
+  mockInterviewId String   @map("mock_interview_id")
+  questionId      String?  @map("question_id")
+  aiQuestion      String   @map("ai_question")
+  userAnswer      String?  @map("user_answer")
+  aiFeedback      String?  @map("ai_feedback")
+  score           Int?
+  turnOrder       Int      @map("turn_order")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  mockInterview   MockInterview @relation(fields: [mockInterviewId], references: [id], onDelete: Cascade)
+
+  @@map("mock_interview_turns")
+}
+
+model StudyPlan {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  icon        String?
+  totalDays   Int      @map("total_days")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userId  String? @map("user_id")
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  days    StudyPlanDay[]
+  progress StudyPlanProgress[]
+
+  @@map("study_plans")
+}
+
+model StudyPlanDay {
+  id                   String  @id @default(uuid())
+  studyPlanId          String  @map("study_plan_id")
+  dayNumber            Int     @map("day_number")
+  targetQuestionCount  Int     @default(5) @map("target_question_count")
+
+  studyPlan  StudyPlan        @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
+  items      StudyPlanItem[]
+
+  @@unique([studyPlanId, dayNumber])
+  @@map("study_plan_days")
+}
+
+model StudyPlanItem {
+  id            String  @id @default(uuid())
+  studyPlanDayId String @map("study_plan_day_id")
+  questionId    String  @map("question_id")
+  sortOrder     Int     @default(0) @map("sort_order")
+
+  studyPlanDay  StudyPlanDay @relation(fields: [studyPlanDayId], references: [id], onDelete: Cascade)
+  question      Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("study_plan_items")
+}
+
+model StudyPlanProgress {
+  id           String   @id @default(uuid())
+  studyPlanId  String   @map("study_plan_id")
+  questionId   String   @map("question_id")
+  completedAt  DateTime @default(now()) @map("completed_at")
+
+  studyPlan    StudyPlan @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
+  question     Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([studyPlanId, questionId])
+  @@map("study_plan_progress")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         String   @id @default(uuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Contest {
+  id            String           @id @default(uuid())
+  title         String
+  description   String?          @db.Text
+  startTime     DateTime
+  duration       Int              // 持续时间（分钟）
+  status        String           @default("upcoming") // "upcoming" | "ongoing" | "ended"
+  type          String           @default("weekly")    // "weekly" | "monthly" | "custom"
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  problems      ContestProblem[]
+  submissions   ContestSubmission[]
+
+  @@index([status])
+  @@index([startTime])
+  @@map("contests")
+}
+
+model ContestProblem {
+  id          String   @id @default(uuid())
+  contestId   String
+  contest     Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id])
+  score       Int      @default(100)  // 该题分值
+  orderBy     Int                  // 题目在竞赛中的顺序
+  createdAt   DateTime @default(now())
+
+  @@unique([contestId, questionId])
+  @@index([contestId])
+  @@map("contest_problems")
+}
+
+model ContestSubmission {
+  id          String    @id @default(uuid())
+  contestId   String
+  contest     Contest   @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  questionId  String
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  code        String    @db.Text
+  language    String
+  status      String    // "accepted" | "wrong_answer" | "runtime_error" | "time_limit_exceeded"
+  score       Int       @default(0)
+  duration    Int       // 执行耗时(ms)
+  submittedAt DateTime @default(now())
+
+  @@index([contestId])
+  @@index([userId])
+  @@index([submittedAt])
+  @@map("contest_submissions")
+}
+
+model LearningPath {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?  @db.Text
+  icon            String?
+  durationDays    Int      @map("duration_days")
+  difficultyLevel String   @map("difficulty_level") // "beginner" | "intermediate" | "advanced"
+  category        String   // "backend" | "frontend" | "algorithm" | "database" | "fullstack" | "system-design"
+  sortOrder       Int      @default(0) @map("sort_order")
+  isPreset        Boolean  @default(false) @map("is_preset")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  items LearningPathItem[]
+
+  @@index([category])
+  @@index([isPreset])
+  @@map("learning_paths")
+}
+
+model LearningPathItem {
+  id          String   @id @default(uuid())
+  pathId      String   @map("path_id")
+  dayNumber   Int      @map("day_number")
+  questionId  String   @map("question_id")
+  isRequired  Boolean  @default(true) @map("is_required")
+  title       String?
+  description String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now())
+
+  path     LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  question Question     @relation(fields: [questionId], references: [id])
+
+  @@unique([pathId, dayNumber, questionId])
+  @@index([pathId])
+  @@map("learning_path_items")
+}
+
+// 用户标记“在哪见过这道题”
+model QuestionEncounter {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  questionId  String   @map("question_id")
+  tags        String[] // 公司/岗位标签，如 ["字节跳动", "后端"]
+  note        String?  // 可选补充说明
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@index([questionId])
+  @@map("question_encounters")
+}
+
+// 搜索历史（支持未登录用户，userId 为空）
+model SearchHistory {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String?  @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([userId])
+  @@map("search_histories")
+}
+
+// 试卷（组卷产物）
+model TestPaper {
+  id          String   @id @default(uuid())
+  name        String
+  detail      String?
+  userId      String   @map("user_id")
+  isPublic    Boolean  @default(false) @map("is_public")
+  tags        String[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items TestPaperItem[]
+  submissions TestPaperSubmission[]
+
+  @@map("test_papers")
+}
+
+model TestPaperItem {
+  id            String @id @default(uuid())
+  testPaperId   String @map("test_paper_id")
+  questionId    String @map("question_id")
+  questionType  String @map("question_type") // 保留组卷时的题型
+  sortOrder     Int    @default(0) @map("sort_order")
+
+  testPaper TestPaper @relation(fields: [testPaperId], references: [id], onDelete: Cascade)
+  question  Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([testPaperId])
+  @@map("test_paper_items")
+}
+
+model TestPaperSubmission {
+  id            String   @id @default(uuid())
+  testPaperId   String   @map("test_paper_id")
+  userId        String   @map("user_id")
+  score         Int      @default(0)
+  total         Int      @default(0)
+  correctCount  Int      @default(0) @map("correct_count")
+  answers       Json?    // 用户答案快照：{ questionId: answer }
+  submittedAt   DateTime @default(now()) @map("submitted_at")
+
+  testPaper TestPaper @relation(fields: [testPaperId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([testPaperId])
+  @@index([userId])
+  @@map("test_paper_submissions")
+}
+
+model QuestionSet {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  cover       String?  // 封面 emoji 或图标
+  isPublished Boolean  @default(true) @map("is_published")
+  sortOrder   Int      @default(0) @map("sort_order")
+  viewCount   Int      @default(0) @map("view_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  items QuestionSetItem[]
+
+  @@map("question_sets")
+}
+
+model QuestionSetItem {
+  id            String @id @default(uuid())
+  questionSetId String @map("question_set_id")
+  questionId    String @map("question_id")
+  sortOrder     Int    @default(0) @map("sort_order")
+
+  questionSet QuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  question    Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionSetId])
+  @@map("question_set_items")
+}
+
+// 题目解析编辑建议
+model QuestionEdit {
+  id            String   @id @default(uuid())
+  questionId    String   @map("question_id")
+  userId        String?  @map("user_id")
+  description   String   // 修改说明
+  reference     String   @db.Text // 修改后的解析
+  status        String   @default("pending") // pending | approved | rejected
+  reviewMessage String?  @map("review_message")
+  reviewerId    String?  @map("reviewer_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([status])
+  @@map("question_edits")
+}
+
+// ================= RBAC 权限模型 =================
+// 用户通过 User.role（字符串，指向 Role.code）关联到角色，角色关联多个权限点。
+// 设计保持向后兼容：User.role 字段不变，不建立硬外键，避免破坏现有数据。
+
+model Role {
+  code        String   @id // 角色标识，如 admin / user / editor
+  name        String   // 显示名，如 管理员 / 普通用户 / 编辑
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  code        String   @id // 权限点标识，如 question:add / question:edit / admin:access
+  name        String   // 显示名
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleCode       String @map("role_code")
+  permissionCode String @map("permission_code")
+
+  role       Role       @relation(fields: [roleCode], references: [code], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionCode], references: [code], onDelete: Cascade)
+
+  @@id([roleCode, permissionCode])
+  @@map("role_permissions")
+}
