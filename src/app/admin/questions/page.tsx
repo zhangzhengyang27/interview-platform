@@ -134,6 +134,29 @@ export default function AdminQuestionsPage() {
     [confirm, alert, fetchList]
   );
 
+  const handleBatchCompany = async () => {
+    if (selected.length === 0) return;
+    const company = window.prompt(`为选中的 ${selected.length} 道题目设置公司标签（如：字节跳动、腾讯）：`);
+    if (!company || !company.trim()) return;
+    setBatchLoading(true);
+    try {
+      const res = await fetch("/api/admin/questions/batch-company", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selected, company: company.trim() }),
+      });
+      if (res.ok) {
+        setSelected([]);
+        fetchList();
+      } else {
+        const body = await res.json().catch(() => ({}));
+        alert({ title: "设置失败", message: body.error || "批量设置公司标签失败，请稍后重试。" });
+      }
+    } finally {
+      setBatchLoading(false);
+    }
+  };
+
   const handleBatchDelete = async () => {
     if (selected.length === 0) return;
     if (!(await confirm({ title: "批量删除", message: `确定删除选中的 ${selected.length} 道题目吗？此操作不可恢复。`, confirmText: "删除", danger: true }))) return;
@@ -306,9 +329,14 @@ export default function AdminQuestionsPage() {
             ))}
           </Select>
           {selected.length > 0 && (
-            <Button variant="danger" size="sm" onClick={handleBatchDelete} loading={batchLoading}>
-              批量删除 ({selected.length})
-            </Button>
+            <>
+              <Button variant="secondary" size="sm" onClick={handleBatchCompany} loading={batchLoading}>
+                设置公司 ({selected.length})
+              </Button>
+              <Button variant="danger" size="sm" onClick={handleBatchDelete} loading={batchLoading}>
+                批量删除 ({selected.length})
+              </Button>
+            </>
           )}
         </div>
       </div>
