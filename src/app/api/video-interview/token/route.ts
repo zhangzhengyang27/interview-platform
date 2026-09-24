@@ -4,6 +4,8 @@ import {
   generateRtcToken,
   getVolcRtcAppCredentials,
 } from "@/lib/video-interview";
+import { requireAuth, getCurrentUser } from "@/lib/session";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +22,19 @@ export async function HEAD() {
 }
 
 export async function POST(request: NextRequest) {
+  // RTC Token 可进房消耗 RTC 分钟数，必须登录且按用户限流
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
+  const rl = rateLimit(`video-token:${user!.id}`, 10, 60 * 1000);
+  if (!rl.success) {
+    return new Response(JSON.stringify({ error: "请求过于频繁，请稍后再试" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", ...rateLimitHeaders(rl) },
+    });
+  }
+
   if (!isSeedRealtimeConfigured()) {
     return new Response(
       JSON.stringify({

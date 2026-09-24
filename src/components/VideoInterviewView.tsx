@@ -236,6 +236,12 @@ export function VideoInterviewView({
         body: JSON.stringify({ direction }),
       });
       if (!res.ok) {
+        // 视频面试必须登录（RTC Token 按用户签发）
+        if (res.status === 401) {
+          const callbackUrl = encodeURIComponent(window.location.pathname);
+          window.location.href = `/login?callbackUrl=${callbackUrl}`;
+          throw new Error("请先登录后再开始视频面试");
+        }
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error ?? "无法建立视频通话");
       }

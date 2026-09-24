@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth, getCurrentUser } from "@/lib/session";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -30,11 +32,22 @@ interface SavePayload {
  * 视频面试结束后，前端将 SeedRealtime 对话的问答转写文本提交到此接口，
  * 统一写入 mockInterview / mockInterviewTurn，保证历史可回看。
  *
- * 说明：与现有 /api/mock-interview 一致，本接口暂不强制登录鉴权
- * （模拟面试当前为匿名体验模式）。若后续接入用户体系，需在此处校验
- * interviewId 归属（IDOR），并写入 userId。
+ * 鉴权：必须登录。interviewId 已存在时仅归属人可写入（防 IDOR 覆盖他人记录），
+ * 不存在时作为新面试创建并归属当前用户。
  */
 export async function POST(request: NextRequest) {
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
+  const rl = rateLimit(`video-save:${user!.id}`, 30, 60 * 1000);
+  if (!rl.success) {
+    return new Response(JSON.stringify({ error: "请求过于频繁，请稍后再试" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", ...rateLimitHeaders(rl) },
+    });
+  }
+
   try {
     const body = (await request.json()) as SavePayload;
 
@@ -95,13 +108,24 @@ export async function POST(request: NextRequest) {
         where: { id: body.interviewId },
       });
 
+      if (interview && interview.userId && interview.userId !== user!.id) {
+        return null;
+      }
+
       if (!interview) {
         interview = await tx.mockInterview.create({
           data: {
             id: body.interviewId,
             direction,
             status: "completed",
+            userId: user!.id,
           },
+        });
+      } else if (!interview.userId) {
+        // 历史匿名记录：本次写入即确立归属
+        await tx.mockInterview.update({
+          where: { id: interview.id },
+          data: { userId: user!.id },
         });
       }
 
@@ -135,6 +159,13 @@ export async function POST(request: NextRequest) {
 
       return interview;
     });
+
+    if (!result) {
+      return new Response(JSON.stringify({ error: "无权写入此面试记录" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(
       JSON.stringify({ success: true, interviewId: result.id }),
