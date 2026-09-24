@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import useSWR from "swr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { fetcher } from "@/lib/swr";
 
 const ONBOARDING_STORAGE_KEY = "interview-onboarding-completed";
 
@@ -107,6 +109,13 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [isExiting, setIsExiting] = useState(false);
   const router = useRouter();
 
+  // 题量动态获取，避免文案与实际数据脱节
+  const { data: countData } = useSWR<{ total: number }>(
+    "/api/questions?take=1",
+    fetcher
+  );
+  const questionCount = countData?.total;
+
   const completeOnboarding = useCallback(() => {
     localStorage.setItem(ONBOARDING_STORAGE_KEY, "true");
     setIsExiting(true);
@@ -195,7 +204,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
               </svg>
             ),
-            title: "193+ 面试题",
+            title: questionCount !== undefined ? `${questionCount.toLocaleString()} 道面试题` : "海量面试题",
             desc: "覆盖算法/前端/后端/数据库等全方向",
           },
           {
