@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SkeletonBox } from "@/components/ui/SkeletonBox";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
 interface StudyPlan {
   id: string;
@@ -567,6 +568,7 @@ export default function StudyPlansPage() {
   }, [fetchPlans]);
 
   return (
+    <AuthGuard>
     <div className="p-4 md:p-margin-desktop max-w-[1440px] mx-auto w-full">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
@@ -730,5 +732,6 @@ export default function StudyPlansPage() {
         onUpdated={fetchPlans}
       />
     </div>
+    </AuthGuard>
   );
 }

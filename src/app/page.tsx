@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import useSWR from "swr";
 import { fetcher } from "@/lib/swr";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { OnboardingWizard, useShouldShowOnboarding } from "@/components/OnboardingWizard";
+import { useAuth } from "@/hooks/useAuth";
 import {
   DashboardHeader,
   DailyGoalCard,
@@ -100,6 +102,7 @@ interface DueReviewItem {
 // ─── Main Page Component ─────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   // 使用 SWR 进行数据获取和缓存
   const { data: extendedStats, error: extendedError } = useSWR<ExtendedStats>("/api/stats/extended", fetcher);
   const { data: streakData, error: streakError } = useSWR<StreakStats>("/api/stats/streak", fetcher);
@@ -180,6 +183,45 @@ export default function DashboardPage() {
             <div className="h-32 min-w-[260px] w-[280px] shrink-0 rounded-lg animate-pulse" style={{ backgroundColor: "var(--surface-high)" }} />
             <div className="h-32 min-w-[260px] w-[280px] shrink-0 rounded-lg animate-pulse" style={{ backgroundColor: "var(--surface-high)" }} />
             <div className="h-32 min-w-[260px] w-[280px] shrink-0 rounded-lg animate-pulse" style={{ backgroundColor: "var(--surface-high)" }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Guest State：未登录访客展示欢迎页（仪表盘接口全部需要登录，401 对游客无意义）──
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="p-4 md:p-margin-desktop max-w-[1440px] mx-auto w-full">
+        <div className="flex flex-col items-center text-center py-16 gap-5">
+          <h1 className="text-4xl font-semibold tracking-tight" style={{ color: "var(--on-surface)" }}>
+            欢迎来到面试网
+          </h1>
+          <p className="text-base max-w-xl" style={{ color: "var(--on-surface-variant)" }}>
+            AI 驱动的程序员面试准备平台：题库练习、AI 模拟面试、间隔复习与数据看板。
+            登录后即可开始你的备考计划。
+          </p>
+          <div className="flex items-center gap-3 mt-2">
+            <Link href="/register" className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all hover:brightness-110" style={{ backgroundColor: "var(--primary)", color: "var(--on-primary)" }}>
+              免费注册
+            </Link>
+            <Link href="/login" className="px-5 py-2.5 rounded-lg text-sm font-medium border border-outline-variant transition-colors hover:border-outline" style={{ color: "var(--on-surface)" }}>
+              登录
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10 w-full max-w-3xl">
+            {[
+              { icon: "📚", title: "刷题与错题本", desc: "多方向题库、判题与收藏夹" },
+              { icon: "🎤", title: "AI 模拟面试", desc: "文本/语音/视频三种模式实时追问" },
+              { icon: "🔥", title: "科学复习", desc: "艾宾浩斯曲线安排每日复习计划" },
+            ].map((f) => (
+              <div key={f.title} className="rounded-lg p-5 text-left" style={{ backgroundColor: "var(--surface-container)" }}>
+                <div className="text-2xl mb-2" aria-hidden>{f.icon}</div>
+                <p className="text-sm font-semibold" style={{ color: "var(--on-surface)" }}>{f.title}</p>
+                <p className="text-xs mt-1" style={{ color: "var(--on-surface-variant)" }}>{f.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
