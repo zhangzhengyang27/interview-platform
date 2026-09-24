@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import WebSocket from "ws";
 import { buildAsrHeaders, VOLC_ASR_WS_URL } from "@/lib/volcengine-voice";
+import { requireAuth, getCurrentUser } from "@/lib/session";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -16,6 +18,19 @@ export const maxDuration = 60;
 const MAX_AUDIO_BASE64_LENGTH = 10 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
+  // ASR 消耗付费语音时长，必须登录且按用户限流
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
+  const rl = rateLimit(`voice-asr:${user!.id}`, 10, 60 * 1000);
+  if (!rl.success) {
+    return new Response(JSON.stringify({ error: "请求过于频繁，请稍后再试" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", ...rateLimitHeaders(rl) },
+    });
+  }
+
   try {
     const body = await request.json().catch(() => ({}));
     const audioBase64 = typeof body.audio === "string" ? body.audio : "";

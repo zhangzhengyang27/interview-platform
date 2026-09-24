@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateDeepSeekApiKey, callDeepSeek } from "@/lib/deepseek";
+import { requireAuth, getCurrentUser } from "@/lib/session";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 function buildImprovePrompt(
   title: string,
@@ -34,6 +36,19 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // AI 优化消耗 DeepSeek 配额，必须登录且按用户限流
+  const authError = await requireAuth();
+  if (authError) return authError;
+  const user = await getCurrentUser();
+
+  const rl = rateLimit(`ai-improve:${user!.id}`, 10, 60 * 1000);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "请求过于频繁，请稍后再试" },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    );
+  }
+
   const validation = validateDeepSeekApiKey();
   if (!validation.valid) {
     return NextResponse.json(

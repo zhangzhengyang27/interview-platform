@@ -4,6 +4,7 @@ import {
   buildTtsRequestBody,
   VOLC_TTS_HTTP_URL,
 } from "@/lib/volcengine-voice";
+import { getClientIp, rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,16 @@ export const dynamic = "force-dynamic";
 const MAX_TEXT_LENGTH = 2000;
 
 export async function POST(request: NextRequest) {
+  // TTS 消耗付费语音时长。保留游客朗读能力（题目页降级体验），
+  // 但按 IP 限流防止匿名刷量
+  const rl = rateLimit(`voice-tts:${getClientIp(request)}`, 10, 60 * 1000);
+  if (!rl.success) {
+    return new Response(JSON.stringify({ error: "请求过于频繁，请稍后再试" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", ...rateLimitHeaders(rl) },
+    });
+  }
+
   try {
     const body = await request.json().catch(() => ({}));
     const text = typeof body.text === "string" ? body.text.trim() : "";
