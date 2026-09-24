@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
+import { requirePermission } from "@/lib/permission";
 import { optionalAuth } from "@/lib/session";
 
 export async function GET(
@@ -43,6 +44,29 @@ export async function GET(
   } catch (error) {
     console.error("GET /api/questions/[id] error:", error);
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
+  }
+}
+
+// DELETE /api/questions/[id] — 删除题目（后台「删除」按钮使用）
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const authError = await requirePermission("question:manage");
+  if (authError) return authError;
+
+  try {
+    const { id } = await params;
+    const exists = await prisma.question.findUnique({ where: { id }, select: { id: true } });
+    if (!exists) {
+      return NextResponse.json({ error: "题目不存在" }, { status: 404 });
+    }
+
+    await prisma.question.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("DELETE /api/questions/[id] error:", error);
+    return NextResponse.json({ error: "删除题目失败" }, { status: 500 });
   }
 }
 
